@@ -1001,6 +1001,25 @@ a { text-decoration: none; color: white; }
   display: block;
 }
 
+/* ===== RESET DEVICE CARD ===== */
+.reset-device-card {
+  margin-top: 20px;
+  background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(217,119,6,0.08));
+  border: 1px solid rgba(245,158,11,0.3);
+}
+
+.reset-device-card h3 {
+  color: #f59e0b !important;
+}
+
+.reset-device-btn {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.reset-device-btn:hover {
+  box-shadow: 0 15px 30px rgba(245,158,11,0.4);
+}
+
 /* ===== FOOTER ===== */
 .footer {
   background: #020617;
@@ -1301,7 +1320,6 @@ a { text-decoration: none; color: white; }
       </div>
     </div>
 
-    <!-- 🔐 الفيديو بيتضاف هنا بالـ JavaScript -->
     <div class="video-wrapper" id="videoWrapper" oncontextmenu="return false;">
     </div>
 
@@ -1429,6 +1447,26 @@ a { text-decoration: none; color: white; }
           </tbody>
         </table>
       </div>
+
+      <!-- 🔄 قسم إعادة تعيين جهاز طالب -->
+      <div class="admin-card reset-device-card">
+        <h3>
+          <i class="fas fa-undo"></i>
+          إعادة تعيين جهاز طالب
+        </h3>
+        <p style="color: #94a3b8; font-size: 13px; margin-bottom: 15px; line-height: 1.7;">
+          استخدم الخيار ده لو الطالب غيّر جهازه ومحتاج يسجل من جديد.
+        </p>
+        <div class="form-row">
+          <label>📧 إيميل الطالب</label>
+          <input type="email" id="resetDeviceEmail" placeholder="student@gmail.com">
+        </div>
+        <button class="generate-btn reset-device-btn" onclick="resetStudentDevice(document.getElementById('resetDeviceEmail').value)">
+          <i class="fas fa-undo"></i>
+          مسح ربط الجهاز
+        </button>
+      </div>
+
     </div>
 
   </div>
@@ -1444,6 +1482,8 @@ a { text-decoration: none; color: white; }
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<!-- 🖥️ مكتبة بصمة الجهاز -->
+<script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
 
 <script>
 /* =========================================
@@ -1467,13 +1507,16 @@ const db = firebase.firestore();
    إيميل الأدمن
    ========================================= */
 const ADMIN_EMAIL = "y@gmail.com";
+
+/* =========================================
+   🔐 روابط الفيديو المشفرة
+   ========================================= */
 const encryptedVideos = {
-  'الفصل الثالث - محاضرة 4': 'aHR0cHM6Ly9kLnRvcDR0b3AuaW8vbV8zOTEwamo3bWExLm1wNAoK',
+  'الفصل الثالث - محاضرة 4': 'aHR0cHM6Ly9kLnRvcDR0b3AuaW8vbV8zOTEwamo3bWExLm1wNA==',
   'الفصل الرابع - محاضرة 1': 'aHR0cHM6Ly9kLnRvcDR0b3AuaW8vbV8zOTEwamo3bWExLm1wNA==',
   'مراجعة نهائية شاملة': 'aHR0cHM6Ly9kLnRvcDR0b3AuaW8vbV8zOTEwamo3bWExLm1wNA=='
 };
 
-// دالة فك التشفير
 function decodeUrl(encoded) {
   try {
     return atob(encoded);
@@ -1484,13 +1527,110 @@ function decodeUrl(encoded) {
 }
 
 /* =========================================
-   ✅ قائمة المحاضرات (تم التصحيح)
+   ✅ قائمة المحاضرات
    ========================================= */
 const lecturesList = [
   'الفصل الثالث - محاضرة 4',
   'الفصل الرابع - محاضرة 1',
   'مراجعة نهائية شاملة'
 ];
+
+/* =========================================
+   🖥️ نظام بصمة الجهاز
+   ========================================= */
+let deviceId = null;
+
+async function getDeviceId() {
+  if (deviceId) return deviceId;
+
+  try {
+    const fp = await FingerprintJS.load();
+    const result = await fp.get();
+    deviceId = result.visitorId;
+    console.log('🖥️ Device ID:', deviceId);
+    return deviceId;
+  } catch (error) {
+    console.error('Error getting device ID:', error);
+    // احتياطي: استخدم بيانات المتصفح
+    deviceId = 'fallback_' + btoa(
+      navigator.userAgent +
+      screen.width +
+      screen.height +
+      navigator.language +
+      navigator.platform
+    ).replace(/[^a-zA-Z0-9]/g, '').substring(0, 25);
+    return deviceId;
+  }
+}
+
+async function checkDeviceBinding(userEmail, currentDeviceId) {
+  try {
+    // تجاهل الأدمن
+    if (userEmail === ADMIN_EMAIL) {
+      return { allowed: true };
+    }
+
+    const userDeviceRef = db.collection('userDevices').doc(userEmail);
+    const doc = await userDeviceRef.get();
+
+    if (!doc.exists) {
+      // ✅ أول مرة - اربط الجهاز
+      await userDeviceRef.set({
+        email: userEmail,
+        deviceId: currentDeviceId,
+        firstLogin: firebase.firestore.FieldValue.serverTimestamp(),
+        firstLoginISO: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+        lastLoginISO: new Date().toISOString()
+      });
+
+      return { allowed: true, isNew: true };
+    }
+
+    const data = doc.data();
+
+    if (data.deviceId === currentDeviceId) {
+      // ✅ نفس الجهاز
+      await userDeviceRef.update({
+        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+        lastLoginISO: new Date().toISOString()
+      });
+
+      return { allowed: true };
+    }
+
+    // ❌ جهاز مختلف
+    return {
+      allowed: false,
+      message: '⚠️ هذا الحساب مرتبط بجهاز آخر!\n\nالحساب مربوط بجهاز واحد فقط لأسباب أمنية.\nتواصل مع المدرس لو عندك مشكلة.'
+    };
+
+  } catch (error) {
+    console.error('Error checking device binding:', error);
+    return { allowed: true };
+  }
+}
+
+async function resetStudentDevice(email) {
+  if (!email) {
+    alert('⚠️ اكتب إيميل الطالب');
+    return;
+  }
+
+  email = email.trim().toLowerCase();
+
+  if (!confirm(`مسح ربط الجهاز للطالب:\n${email}\n\nالطالب هيقدر يسجل من جهاز جديد؟`)) return;
+
+  try {
+    await db.collection('userDevices').doc(email).delete();
+    alert('✅ تم مسح ربط الجهاز بنجاح!\nالطالب يقدر يسجل من جهاز جديد.');
+    document.getElementById('resetDeviceEmail').value = '';
+  } catch (error) {
+    alert('❌ حدث خطأ: ' + error.message);
+  }
+}
 
 /* =========================================
    متغيرات الحالة
@@ -1668,7 +1808,7 @@ async function logout() {
 }
 
 /* =========================================
-   مراقبة حالة تسجيل الدخول
+   مراقبة حالة تسجيل الدخول (مع التحقق من الجهاز)
    ========================================= */
 auth.onAuthStateChanged(async function(user) {
   currentUser = user;
@@ -1677,6 +1817,19 @@ auth.onAuthStateChanged(async function(user) {
     const displayName = user.displayName || user.email.split('@')[0];
     const userEmail = user.email.toLowerCase();
 
+    // 🖥️ التحقق من بصمة الجهاز
+    const currentDeviceId = await getDeviceId();
+    const deviceCheck = await checkDeviceBinding(userEmail, currentDeviceId);
+
+    if (!deviceCheck.allowed) {
+      // ❌ الجهاز مش مصرح
+      await auth.signOut();
+      showAuthError(deviceCheck.message);
+      showPage('authPage');
+      return;
+    }
+
+    // ✅ الجهاز مصرح - كمّل عادي
     document.getElementById('userInfo').style.display = 'flex';
     document.getElementById('studentName').textContent = displayName;
 
@@ -2144,7 +2297,6 @@ async function deleteCode(code) {
 /* =========================================
    دوال مساعدة
    ========================================= */
-
 function showAuthError(message) {
   document.getElementById('authErrorText').textContent = message;
   document.getElementById('authError').classList.add('show');
@@ -2217,7 +2369,6 @@ function getAuthErrorMessage(code) {
 /* =========================================
    🛡️ حماية F12 و DevTools
    ========================================= */
-
 document.addEventListener('keydown', function(e) {
   if (e.key === 'F12' || e.keyCode === 123) {
     e.preventDefault();
