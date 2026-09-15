@@ -152,9 +152,7 @@ a { text-decoration: none; color: white; }
   position: relative;
 }
 
-.auth-text {
-  flex: 1;
-}
+.auth-text { flex: 1; }
 
 .auth-text h1 {
   font-size: 55px;
@@ -522,6 +520,14 @@ a { text-decoration: none; color: white; }
   font-weight: 600;
   position: relative;
   z-index: 1;
+  transition: all 0.3s;
+}
+
+/* ✅ شارة "مفتوح" للمحاضرات المتاحة */
+.lecture-badge.unlocked {
+  background: rgba(16,185,129,0.15);
+  border-color: rgba(16,185,129,0.5);
+  color: #10b981;
 }
 
 /* ===== CODE PAGE ===== */
@@ -962,9 +968,9 @@ a { text-decoration: none; color: white; }
   gap: 5px;
 }
 
-.status-active { background: rgba(16,185,129,0.15); color: #10b981; }
+.status-active { background: rgba(0,212,255,0.15); color: #00d4ff; }
 .status-expired { background: rgba(239,68,68,0.15); color: #ef4444; }
-.status-used { background: rgba(107,114,128,0.15); color: #94a3b8; }
+.status-used { background: rgba(16,185,129,0.15); color: #10b981; }
 
 .delete-btn {
   background: rgba(239,68,68,0.15);
@@ -1136,39 +1142,39 @@ a { text-decoration: none; color: white; }
 <section class="page" id="lecturesPage">
   <div class="page-header">
     <h1>📚 اختر <span>المحاضرة</span></h1>
-    <p>اختر المحاضرة اللي عايز تشوفها وادخل الكود الخاص بها</p>
+    <p>اختر المحاضرة اللي عايز تشوفها</p>
   </div>
 
   <div class="lectures-grid">
-    <div class="lecture-card" onclick="selectLecture('الفصل الثالث - محاضرة 4')">
+    <div class="lecture-card" data-lecture="الفصل الثالث - محاضرة 4" onclick="selectLecture('الفصل الثالث - محاضرة 4')">
       <div class="lecture-icon">
         <i class="fas fa-atom"></i>
       </div>
       <h3>الفصل الثالث - محاضرة 4</h3>
       <p>شرح مفصل لمواضيع الفصل الثالث مع أمثلة وتمارين محلولة.</p>
-      <span class="lecture-badge">
+      <span class="lecture-badge" id="badge-0">
         <i class="fas fa-lock"></i> يحتاج كود
       </span>
     </div>
 
-    <div class="lecture-card" onclick="selectLecture('الفصل الرابع - محاضرة 1')">
+    <div class="lecture-card" data-lecture="الفصل الرابع - محاضرة 1" onclick="selectLecture('الفصل الرابع - محاضرة 1')">
       <div class="lecture-icon">
         <i class="fas fa-flask"></i>
       </div>
       <h3>الفصل الرابع - محاضرة 1</h3>
       <p>مقدمة عن الفصل الرابع وأهم القوانين والمسائل.</p>
-      <span class="lecture-badge">
+      <span class="lecture-badge" id="badge-1">
         <i class="fas fa-lock"></i> يحتاج كود
       </span>
     </div>
 
-    <div class="lecture-card" onclick="selectLecture('مراجعة نهائية شاملة')">
+    <div class="lecture-card" data-lecture="مراجعة نهائية شاملة" onclick="selectLecture('مراجعة نهائية شاملة')">
       <div class="lecture-icon">
         <i class="fas fa-graduation-cap"></i>
       </div>
       <h3>مراجعة نهائية شاملة</h3>
       <p>مراجعة كل المنهج مع أهم الأسئلة المتوقعة.</p>
-      <span class="lecture-badge">
+      <span class="lecture-badge" id="badge-2">
         <i class="fas fa-lock"></i> يحتاج كود
       </span>
     </div>
@@ -1434,6 +1440,12 @@ const lecturesData = {
   }
 };
 
+const lecturesList = [
+  'الفصل الثالث - محاضرة 4',
+  'الفصل الرابع - محاضرة 1',
+  'مراجعة نهائية شاملة'
+];
+
 /* =========================================
    متغيرات الحالة
    ========================================= */
@@ -1619,11 +1631,9 @@ auth.onAuthStateChanged(async function(user) {
     const displayName = user.displayName || user.email.split('@')[0];
     const userEmail = user.email.toLowerCase();
 
-    // عرض معلومات المستخدم
     document.getElementById('userInfo').style.display = 'flex';
     document.getElementById('studentName').textContent = displayName;
 
-    // عرض صورة الحساب لو موجودة
     if (user.photoURL) {
       const avatar = document.getElementById('userAvatar');
       avatar.src = user.photoURL;
@@ -1639,34 +1649,12 @@ auth.onAuthStateChanged(async function(user) {
       return;
     }
 
-    // طالب عادي - شوف لو عنده كود محفوظ
-    const activeCode = localStorage.getItem('activeCode');
-    if (activeCode) {
-      try {
-        const doc = await db.collection('accessCodes').doc(activeCode).get();
-        if (doc.exists) {
-          const data = doc.data();
-          const now = new Date();
-          const expDate = new Date(data.expiresAt);
-          // ✅ تحقق بالإيميل بدل الاسم
-          if (now <= expDate && data.studentEmail === userEmail) {
-            data.code = activeCode;
-            openVideo(data);
-            return;
-          }
-        }
-      } catch (err) {
-        console.log('Error checking saved code:', err);
-      }
-      localStorage.removeItem('activeCode');
-      localStorage.removeItem('studentName');
-    }
-
-    // خليه يشوف المحاضرات
+    // طالب عادي - اعرض المحاضرات
     showPage('lecturesPage');
+    // ✅ حدّث شارات المحاضرات (مفتوح/مقفول)
+    await updateLectureBadges();
 
   } else {
-    // مسجل خروج
     document.getElementById('userInfo').style.display = 'none';
     document.getElementById('adminInfo').style.display = 'none';
     document.getElementById('userAvatar').style.display = 'none';
@@ -1684,11 +1672,105 @@ function showPage(pageId) {
 }
 
 /* =========================================
+   ✅ التحقق من صلاحية الطالب للمحاضرة
+   ========================================= */
+async function checkStudentAccess(lectureName) {
+  try {
+    const userEmail = currentUser.email.toLowerCase();
+
+    // ابحث عن كود مفعّل للطالب على المحاضرة دي
+    const snapshot = await db.collection('accessCodes')
+      .where('studentEmail', '==', userEmail)
+      .where('lectureName', '==', lectureName)
+      .get();
+
+    if (snapshot.empty) {
+      return null;
+    }
+
+    // تحقق من كل كود - هل لسه صالح؟
+    const now = new Date();
+    for (const doc of snapshot.docs) {
+      const data = doc.data();
+      const expiryDate = new Date(data.expiresAt);
+
+      if (now <= expiryDate) {
+        // ✅ الكود لسه صالح
+        return { ...data, code: doc.id };
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error checking access:', error);
+    return null;
+  }
+}
+
+/* =========================================
+   ✅ تحديث شارات المحاضرات (مفتوح / مقفول)
+   ========================================= */
+async function updateLectureBadges() {
+  if (!currentUser || currentUser.email.toLowerCase() === ADMIN_EMAIL) return;
+
+  const userEmail = currentUser.email.toLowerCase();
+  const now = new Date();
+
+  try {
+    // اجلب كل أكواد الطالب مرة واحدة
+    const snapshot = await db.collection('accessCodes')
+      .where('studentEmail', '==', userEmail)
+      .get();
+
+    const unlockedLectures = new Set();
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const expDate = new Date(data.expiresAt);
+      if (now <= expDate) {
+        unlockedLectures.add(data.lectureName);
+      }
+    });
+
+    // حدّث الشارات
+    lecturesList.forEach((lecture, index) => {
+      const badge = document.getElementById('badge-' + index);
+      if (!badge) return;
+
+      if (unlockedLectures.has(lecture)) {
+        badge.className = 'lecture-badge unlocked';
+        badge.innerHTML = '<i class="fas fa-unlock"></i> مفتوح - اضغط للمشاهدة';
+      } else {
+        badge.className = 'lecture-badge';
+        badge.innerHTML = '<i class="fas fa-lock"></i> يحتاج كود';
+      }
+    });
+
+  } catch (error) {
+    console.error('Error updating badges:', error);
+  }
+}
+
+/* =========================================
    اختيار محاضرة
    ========================================= */
-function selectLecture(lectureName) {
+async function selectLecture(lectureName) {
   selectedLecture = lectureName;
 
+  // ✅ شوف الأول لو الطالب عنده وصول للمحاضرة دي
+  const existingAccess = await checkStudentAccess(lectureName);
+
+  if (existingAccess) {
+    // ✅ عنده وصول - افتح الفيديو مباشرة
+    showPage('videoPage');
+    // عرض رسالة نجاح
+    setTimeout(() => {
+      openVideo(existingAccess);
+    }, 300);
+    return;
+  }
+
+  // ❌ مفيش وصول - اطلب منه الكود
   document.getElementById('selectedLectureName').textContent = lectureName;
   document.getElementById('accessCode').value = '';
   document.getElementById('accessCode').classList.remove('error');
@@ -1702,7 +1784,7 @@ function selectLecture(lectureName) {
 /* =========================================
    رجوع لقائمة المحاضرات
    ========================================= */
-function goBackToLectures() {
+async function goBackToLectures() {
   const videoEl = document.getElementById('lectureVideo');
   if (videoEl) {
     videoEl.pause();
@@ -1711,10 +1793,11 @@ function goBackToLectures() {
     videoEl.load();
   }
 
-  localStorage.removeItem('activeCode');
-  localStorage.removeItem('studentName');
-
+  // ✅ ما نمسحش الكود - الطالب يقدر يدخل تاني بدون كود
   showPage('lecturesPage');
+
+  // حدّث الشارات
+  await updateLectureBadges();
 }
 
 /* =========================================
@@ -1772,8 +1855,10 @@ async function verifyAccessCode() {
       return;
     }
 
+    // ✅ حدّث حالة الكود - فتح المحاضرة نهائياً
     await docRef.update({
       used: true,
+      unlocked: true,
       usedAt: firebase.firestore.FieldValue.serverTimestamp(),
       usedAtISO: now.toISOString(),
       usedByEmail: currentUser.email
@@ -1814,9 +1899,6 @@ function openVideo(data) {
     videoEl.querySelector('source').src = lectureData.video;
     videoEl.load();
   }
-
-  localStorage.setItem('studentName', data.studentName);
-  localStorage.setItem('activeCode', data.code);
 }
 
 /* =========================================
@@ -1841,7 +1923,6 @@ async function generateCode() {
     return;
   }
 
-  // تحقق من صيغة الإيميل
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(studentEmail)) {
     alert('⚠️ صيغة الإيميل غير صحيحة');
@@ -1873,14 +1954,15 @@ async function generateCode() {
 
     await db.collection('accessCodes').doc(code).set({
       code: code,
-      studentEmail: studentEmail,  // ✅ الإيميل
-      studentName: studentEmail.split('@')[0],  // للعرض
+      studentEmail: studentEmail,
+      studentName: studentEmail.split('@')[0],
       lectureName: lectureName,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       createdAtISO: now.toISOString(),
       expiresAt: expiryDate.toISOString(),
       validityDays: validityDays,
       used: false,
+      unlocked: false,
       usedAt: null,
       usedByEmail: null
     });
@@ -1962,13 +2044,12 @@ async function loadCodes() {
       let statusBadge = '';
       if (isExpired) {
         statusBadge = '<span class="status-badge status-expired"><i class="fas fa-times-circle"></i> منتهي</span>';
-      } else if (c.used) {
-        statusBadge = '<span class="status-badge status-used"><i class="fas fa-check"></i> مستخدم</span>';
+      } else if (c.used || c.unlocked) {
+        statusBadge = '<span class="status-badge status-used"><i class="fas fa-unlock"></i> مفتوح</span>';
       } else {
         statusBadge = '<span class="status-badge status-active"><i class="fas fa-circle"></i> نشط</span>';
       }
 
-      // ✅ عرض الإيميل بدل الاسم
       const emailDisplay = c.studentEmail || c.studentName || '-';
 
       return `
