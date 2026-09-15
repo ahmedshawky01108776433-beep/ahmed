@@ -524,14 +524,6 @@ a { text-decoration: none; color: white; }
   z-index: 1;
 }
 
-.lecture-card.locked {
-  opacity: 0.7;
-}
-
-.lecture-card.locked .lecture-icon {
-  background: linear-gradient(135deg, #64748b, #475569);
-}
-
 /* ===== CODE PAGE ===== */
 #codePage {
   align-items: center;
@@ -1011,57 +1003,6 @@ a { text-decoration: none; color: white; }
 
 .footer h3 { color: #00d4ff; margin-bottom: 10px; font-size: 18px; }
 
-/* ===== HIDDEN ADMIN BUTTON ===== */
-.hidden-admin {
-  position: fixed;
-  bottom: 15px;
-  left: 15px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.3);
-  border: none;
-  color: rgba(255,255,255,0.15);
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s;
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.hidden-admin:hover {
-  background: #f59e0b;
-  color: white;
-}
-
-/* ===== LOADING ===== */
-.loading-overlay {
-  position: fixed;
-  inset: 0;
-  background: #0d1117;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.loading-spinner {
-  width: 60px;
-  height: 60px;
-  border: 4px solid #1e293b;
-  border-top-color: #00d4ff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 /* ===== RESPONSIVE ===== */
 @media(max-width: 950px) {
   .auth-container {
@@ -1319,7 +1260,7 @@ a { text-decoration: none; color: white; }
 </section>
 
 <!-- =========================================
-     صفحة الأدمن (تظهر لو الإيميل admin)
+     صفحة الأدمن
      ========================================= -->
 <section class="page" id="adminPage">
   <div class="admin-container">
@@ -1338,8 +1279,8 @@ a { text-decoration: none; color: white; }
         </h3>
 
         <div class="form-row">
-          <label>اسم الطالب</label>
-          <input type="text" id="studentNameInput" placeholder="مثال: محمد أحمد">
+          <label>📧 إيميل الطالب</label>
+          <input type="email" id="studentEmailInput" placeholder="مثال: student@gmail.com">
         </div>
 
         <div class="form-row">
@@ -1400,6 +1341,7 @@ a { text-decoration: none; color: white; }
         <p style="color: #94a3b8; font-size: 13px; line-height: 1.8;">
           <i class="fas fa-info-circle" style="color: #00d4ff;"></i>
           الأكواد تُخزَّن في Firebase وتنتهي تلقائياً بعد المدة المحددة.
+          كل كود مربوط بإيميل الطالب.
         </p>
       </div>
 
@@ -1420,7 +1362,7 @@ a { text-decoration: none; color: white; }
           <thead>
             <tr>
               <th>الكود</th>
-              <th>الطالب</th>
+              <th>إيميل الطالب</th>
               <th>المحاضرة</th>
               <th>تاريخ الإنشاء</th>
               <th>ينتهي في</th>
@@ -1473,7 +1415,7 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 /* =========================================
-   إيميل الأدمن (بيتعرف تلقائياً)
+   إيميل الأدمن
    ========================================= */
 const ADMIN_EMAIL = "y@gmail.com";
 
@@ -1668,13 +1610,14 @@ async function logout() {
 }
 
 /* =========================================
-   🔥 مراقبة حالة تسجيل الدخول
+   مراقبة حالة تسجيل الدخول
    ========================================= */
 auth.onAuthStateChanged(async function(user) {
   currentUser = user;
 
   if (user) {
     const displayName = user.displayName || user.email.split('@')[0];
+    const userEmail = user.email.toLowerCase();
 
     // عرض معلومات المستخدم
     document.getElementById('userInfo').style.display = 'flex';
@@ -1688,7 +1631,7 @@ auth.onAuthStateChanged(async function(user) {
     }
 
     // تحقق لو ده الأدمن
-    if (user.email === ADMIN_EMAIL) {
+    if (userEmail === ADMIN_EMAIL) {
       document.getElementById('userInfo').style.display = 'none';
       document.getElementById('adminInfo').style.display = 'flex';
       showPage('adminPage');
@@ -1699,16 +1642,21 @@ auth.onAuthStateChanged(async function(user) {
     // طالب عادي - شوف لو عنده كود محفوظ
     const activeCode = localStorage.getItem('activeCode');
     if (activeCode) {
-      const doc = await db.collection('accessCodes').doc(activeCode).get();
-      if (doc.exists) {
-        const data = doc.data();
-        const now = new Date();
-        const expDate = new Date(data.expiresAt);
-        if (now <= expDate && data.studentName === displayName) {
-          data.code = activeCode;
-          openVideo(data);
-          return;
+      try {
+        const doc = await db.collection('accessCodes').doc(activeCode).get();
+        if (doc.exists) {
+          const data = doc.data();
+          const now = new Date();
+          const expDate = new Date(data.expiresAt);
+          // ✅ تحقق بالإيميل بدل الاسم
+          if (now <= expDate && data.studentEmail === userEmail) {
+            data.code = activeCode;
+            openVideo(data);
+            return;
+          }
         }
+      } catch (err) {
+        console.log('Error checking saved code:', err);
       }
       localStorage.removeItem('activeCode');
       localStorage.removeItem('studentName');
@@ -1816,9 +1764,9 @@ async function verifyAccessCode() {
       return;
     }
 
-    // تحقق إن الكود للطالب اللي مسجل
-    const displayName = currentUser.displayName || currentUser.email.split('@')[0];
-    if (data.studentName !== displayName) {
+    // ✅ تحقق إن الكود للإيميل اللي مسجل دخول
+    const userEmail = currentUser.email.toLowerCase();
+    if (data.studentEmail !== userEmail) {
       showCodeError('⚠️ هذا الكود ليس مخصصاً لك');
       input.classList.add('error');
       return;
@@ -1884,12 +1832,19 @@ function generateRandomCode() {
 }
 
 async function generateCode() {
-  const studentName = document.getElementById('studentNameInput').value.trim();
+  const studentEmail = document.getElementById('studentEmailInput').value.trim().toLowerCase();
   const lectureName = document.getElementById('lectureSelect').value;
   const validityDays = parseInt(document.getElementById('validityDays').value);
 
-  if (!studentName) {
-    alert('⚠️ اكتب اسم الطالب');
+  if (!studentEmail) {
+    alert('⚠️ اكتب إيميل الطالب');
+    return;
+  }
+
+  // تحقق من صيغة الإيميل
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(studentEmail)) {
+    alert('⚠️ صيغة الإيميل غير صحيحة');
     return;
   }
 
@@ -1918,7 +1873,8 @@ async function generateCode() {
 
     await db.collection('accessCodes').doc(code).set({
       code: code,
-      studentName: studentName,
+      studentEmail: studentEmail,  // ✅ الإيميل
+      studentName: studentEmail.split('@')[0],  // للعرض
       lectureName: lectureName,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       createdAtISO: now.toISOString(),
@@ -1931,7 +1887,7 @@ async function generateCode() {
 
     document.getElementById('generatedCode').textContent = code;
     document.getElementById('generatedResult').classList.add('show');
-    document.getElementById('studentNameInput').value = '';
+    document.getElementById('studentEmailInput').value = '';
 
     loadCodes();
 
@@ -2012,10 +1968,13 @@ async function loadCodes() {
         statusBadge = '<span class="status-badge status-active"><i class="fas fa-circle"></i> نشط</span>';
       }
 
+      // ✅ عرض الإيميل بدل الاسم
+      const emailDisplay = c.studentEmail || c.studentName || '-';
+
       return `
         <tr>
           <td><span class="code-chip">${c.code}</span></td>
-          <td>${c.studentName}</td>
+          <td>${emailDisplay}</td>
           <td>${c.lectureName}</td>
           <td>${createdDate.toLocaleDateString('ar-EG')}</td>
           <td>${expDate.toLocaleDateString('ar-EG')}</td>
@@ -2057,7 +2016,6 @@ async function deleteCode(code) {
    دوال مساعدة
    ========================================= */
 
-// رسائل تسجيل الدخول
 function showAuthError(message) {
   document.getElementById('authErrorText').textContent = message;
   document.getElementById('authError').classList.add('show');
@@ -2075,7 +2033,6 @@ function hideAuthMessages() {
   document.getElementById('authSuccess').classList.remove('show');
 }
 
-// رسائل الكود
 function showCodeError(message) {
   document.getElementById('codeErrorText').textContent = message;
   document.getElementById('codeError').classList.add('show');
@@ -2093,7 +2050,6 @@ function hideCodeMessages() {
   document.getElementById('codeSuccess').classList.remove('show');
 }
 
-// زر التحميل
 function setAuthLoading(loading, text) {
   const btn = document.getElementById('authBtn');
   const btnText = document.getElementById('authBtnText');
@@ -2110,7 +2066,6 @@ function setAuthLoading(loading, text) {
   }
 }
 
-// ترجمة رسائل Firebase
 function getAuthErrorMessage(code) {
   const messages = {
     'auth/email-already-in-use': 'هذا البريد مستخدم بالفعل، جرب تسجيل الدخول',
