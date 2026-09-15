@@ -25,6 +25,9 @@ body {
   color: white;
   overflow-x: hidden;
   min-height: 100vh;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 a { text-decoration: none; color: white; }
@@ -523,7 +526,6 @@ a { text-decoration: none; color: white; }
   transition: all 0.3s;
 }
 
-/* ✅ شارة "مفتوح" للمحاضرات المتاحة */
 .lecture-badge.unlocked {
   background: rgba(16,185,129,0.15);
   border-color: rgba(16,185,129,0.5);
@@ -717,11 +719,13 @@ a { text-decoration: none; color: white; }
   overflow: hidden;
   box-shadow: 0 25px 60px rgba(0,0,0,0.5);
   border: 1px solid #1e293b;
+  position: relative;
 }
 
 .video-wrapper video {
   width: 100%;
   display: block;
+  pointer-events: auto;
 }
 
 .back-btn {
@@ -1009,6 +1013,41 @@ a { text-decoration: none; color: white; }
 
 .footer h3 { color: #00d4ff; margin-bottom: 10px; font-size: 18px; }
 
+/* ===== WARNING OVERLAY ===== */
+#warningOverlay {
+  position: fixed;
+  inset: 0;
+  background: #0d1117;
+  color: #ef4444;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  font-family: Cairo, sans-serif;
+  text-align: center;
+  padding: 20px;
+}
+
+#warningOverlay.show { display: flex; }
+
+#warningOverlay i {
+  font-size: 80px;
+  margin-bottom: 20px;
+}
+
+#warningOverlay h1 {
+  font-size: 32px;
+  margin-bottom: 15px;
+}
+
+#warningOverlay p {
+  font-size: 18px;
+  color: #94a3b8;
+  max-width: 500px;
+  line-height: 1.8;
+}
+
 /* ===== RESPONSIVE ===== */
 @media(max-width: 950px) {
   .auth-container {
@@ -1033,7 +1072,14 @@ a { text-decoration: none; color: white; }
 
 </head>
 
-<body>
+<body oncontextmenu="return false;" onselectstart="return false;" ondragstart="return false;">
+
+<!-- ===== WARNING OVERLAY ===== -->
+<div id="warningOverlay">
+  <i class="fas fa-exclamation-triangle"></i>
+  <h1>🚫 تم إيقاف الصفحة</h1>
+  <p>استخدام أدوات المطور غير مسموح لأسباب أمنية.<br>من فضلك اقفل DevTools وأعد تحميل الصفحة.</p>
+</div>
 
 <!-- ===== NAVBAR ===== -->
 <nav class="navbar">
@@ -1057,7 +1103,7 @@ a { text-decoration: none; color: white; }
 </nav>
 
 <!-- =========================================
-     صفحة تسجيل الدخول / التسجيل
+     صفحة تسجيل الدخول
      ========================================= -->
 <section class="page active" id="authPage">
   <div class="auth-container">
@@ -1146,7 +1192,7 @@ a { text-decoration: none; color: white; }
   </div>
 
   <div class="lectures-grid">
-    <div class="lecture-card" data-lecture="الفصل الثالث - محاضرة 4" onclick="selectLecture('الفصل الثالث - محاضرة 4')">
+    <div class="lecture-card" onclick="selectLecture('الفصل الثالث - محاضرة 4')">
       <div class="lecture-icon">
         <i class="fas fa-atom"></i>
       </div>
@@ -1157,7 +1203,7 @@ a { text-decoration: none; color: white; }
       </span>
     </div>
 
-    <div class="lecture-card" data-lecture="الفصل الرابع - محاضرة 1" onclick="selectLecture('الفصل الرابع - محاضرة 1')">
+    <div class="lecture-card" onclick="selectLecture('الفصل الرابع - محاضرة 1')">
       <div class="lecture-icon">
         <i class="fas fa-flask"></i>
       </div>
@@ -1168,7 +1214,7 @@ a { text-decoration: none; color: white; }
       </span>
     </div>
 
-    <div class="lecture-card" data-lecture="مراجعة نهائية شاملة" onclick="selectLecture('مراجعة نهائية شاملة')">
+    <div class="lecture-card" onclick="selectLecture('مراجعة نهائية شاملة')">
       <div class="lecture-icon">
         <i class="fas fa-graduation-cap"></i>
       </div>
@@ -1228,7 +1274,7 @@ a { text-decoration: none; color: white; }
 </section>
 
 <!-- =========================================
-     صفحة الفيديو
+     صفحة الفيديو (محمية)
      ========================================= -->
 <section class="page" id="videoPage">
   <div class="video-container">
@@ -1255,11 +1301,8 @@ a { text-decoration: none; color: white; }
       </div>
     </div>
 
-    <div class="video-wrapper">
-      <video id="lectureVideo" controls controlsList="nodownload">
-        <source src="" type="video/mp4">
-        متصفحك لا يدعم تشغيل الفيديو.
-      </video>
+    <!-- 🔐 الفيديو بيتضاف هنا بالـ JavaScript -->
+    <div class="video-wrapper" id="videoWrapper" oncontextmenu="return false;">
     </div>
 
   </div>
@@ -1426,20 +1469,27 @@ const db = firebase.firestore();
 const ADMIN_EMAIL = "y@gmail.com";
 
 /* =========================================
-   إعدادات المحاضرات
+   🔐 روابط الفيديو المشفرة (Base64)
    ========================================= */
-const lecturesData = {
-  'الفصل الثالث - محاضرة 4': {
-    video: 'c:\\Users\\youse\\Downloads\\14.09.2026_20.17.30_REC.mp4'
-  },
-  'الفصل الرابع - محاضرة 1': {
-    video: 'c:\\Users\\youse\\Downloads\\14.09.2026_20.17.30_REC.mp4'
-  },
-  'مراجعة نهائية شاملة': {
-    video: 'c:\\Users\\youse\\Downloads\\14.09.2026_20.17.30_REC.mp4'
-  }
+const encryptedVideos = {
+  'الفصل الثالث - محاضرة 4': 'aHR0cHM6Ly9kLnRvcDR0b3AuaW8vbV8zOTEwamo3bWExLm1wNAoK',
+  'الفصل الرابع - محاضرة 1': 'aHR0cHM6Ly9kLnRvcDR0b3AuaW8vbV8zOTEwamo3bWExLm1wNA==',
+  'مراجعة نهائية شاملة': 'aHR0cHM6Ly9kLnRvcDR0b3AuaW8vbV8zOTEwamo3bWExLm1wNA=='
 };
 
+// دالة فك التشفير
+function decodeUrl(encoded) {
+  try {
+    return atob(encoded);
+  } catch (e) {
+    console.error('Decode error');
+    return '';
+  }
+}
+
+/* =========================================
+   ✅ قائمة المحاضرات (تم التصحيح)
+   ========================================= */
 const lecturesList = [
   'الفصل الثالث - محاضرة 4',
   'الفصل الرابع - محاضرة 1',
@@ -1640,7 +1690,6 @@ auth.onAuthStateChanged(async function(user) {
       avatar.style.display = 'block';
     }
 
-    // تحقق لو ده الأدمن
     if (userEmail === ADMIN_EMAIL) {
       document.getElementById('userInfo').style.display = 'none';
       document.getElementById('adminInfo').style.display = 'flex';
@@ -1649,9 +1698,7 @@ auth.onAuthStateChanged(async function(user) {
       return;
     }
 
-    // طالب عادي - اعرض المحاضرات
     showPage('lecturesPage');
-    // ✅ حدّث شارات المحاضرات (مفتوح/مقفول)
     await updateLectureBadges();
 
   } else {
@@ -1672,13 +1719,12 @@ function showPage(pageId) {
 }
 
 /* =========================================
-   ✅ التحقق من صلاحية الطالب للمحاضرة
+   التحقق من صلاحية الطالب للمحاضرة
    ========================================= */
 async function checkStudentAccess(lectureName) {
   try {
     const userEmail = currentUser.email.toLowerCase();
 
-    // ابحث عن كود مفعّل للطالب على المحاضرة دي
     const snapshot = await db.collection('accessCodes')
       .where('studentEmail', '==', userEmail)
       .where('lectureName', '==', lectureName)
@@ -1688,14 +1734,12 @@ async function checkStudentAccess(lectureName) {
       return null;
     }
 
-    // تحقق من كل كود - هل لسه صالح؟
     const now = new Date();
     for (const doc of snapshot.docs) {
       const data = doc.data();
       const expiryDate = new Date(data.expiresAt);
 
       if (now <= expiryDate) {
-        // ✅ الكود لسه صالح
         return { ...data, code: doc.id };
       }
     }
@@ -1708,7 +1752,7 @@ async function checkStudentAccess(lectureName) {
 }
 
 /* =========================================
-   ✅ تحديث شارات المحاضرات (مفتوح / مقفول)
+   تحديث شارات المحاضرات
    ========================================= */
 async function updateLectureBadges() {
   if (!currentUser || currentUser.email.toLowerCase() === ADMIN_EMAIL) return;
@@ -1717,7 +1761,6 @@ async function updateLectureBadges() {
   const now = new Date();
 
   try {
-    // اجلب كل أكواد الطالب مرة واحدة
     const snapshot = await db.collection('accessCodes')
       .where('studentEmail', '==', userEmail)
       .get();
@@ -1732,7 +1775,6 @@ async function updateLectureBadges() {
       }
     });
 
-    // حدّث الشارات
     lecturesList.forEach((lecture, index) => {
       const badge = document.getElementById('badge-' + index);
       if (!badge) return;
@@ -1757,20 +1799,16 @@ async function updateLectureBadges() {
 async function selectLecture(lectureName) {
   selectedLecture = lectureName;
 
-  // ✅ شوف الأول لو الطالب عنده وصول للمحاضرة دي
   const existingAccess = await checkStudentAccess(lectureName);
 
   if (existingAccess) {
-    // ✅ عنده وصول - افتح الفيديو مباشرة
     showPage('videoPage');
-    // عرض رسالة نجاح
     setTimeout(() => {
       openVideo(existingAccess);
     }, 300);
     return;
   }
 
-  // ❌ مفيش وصول - اطلب منه الكود
   document.getElementById('selectedLectureName').textContent = lectureName;
   document.getElementById('accessCode').value = '';
   document.getElementById('accessCode').classList.remove('error');
@@ -1785,18 +1823,12 @@ async function selectLecture(lectureName) {
    رجوع لقائمة المحاضرات
    ========================================= */
 async function goBackToLectures() {
-  const videoEl = document.getElementById('lectureVideo');
-  if (videoEl) {
-    videoEl.pause();
-    videoEl.currentTime = 0;
-    videoEl.querySelector('source').src = '';
-    videoEl.load();
+  const wrapper = document.getElementById('videoWrapper');
+  if (wrapper) {
+    wrapper.innerHTML = '';
   }
 
-  // ✅ ما نمسحش الكود - الطالب يقدر يدخل تاني بدون كود
   showPage('lecturesPage');
-
-  // حدّث الشارات
   await updateLectureBadges();
 }
 
@@ -1840,14 +1872,12 @@ async function verifyAccessCode() {
       return;
     }
 
-    // تحقق إن الكود للمحاضرة المختارة
     if (data.lectureName !== selectedLecture) {
       showCodeError(`⚠️ هذا الكود خاص بمحاضرة "${data.lectureName}" وليس المحاضرة المختارة`);
       input.classList.add('error');
       return;
     }
 
-    // ✅ تحقق إن الكود للإيميل اللي مسجل دخول
     const userEmail = currentUser.email.toLowerCase();
     if (data.studentEmail !== userEmail) {
       showCodeError('⚠️ هذا الكود ليس مخصصاً لك');
@@ -1855,7 +1885,6 @@ async function verifyAccessCode() {
       return;
     }
 
-    // ✅ حدّث حالة الكود - فتح المحاضرة نهائياً
     await docRef.update({
       used: true,
       unlocked: true,
@@ -1880,7 +1909,7 @@ async function verifyAccessCode() {
 }
 
 /* =========================================
-   فتح الفيديو
+   🔐 فتح الفيديو مع الحماية
    ========================================= */
 function openVideo(data) {
   showPage('videoPage');
@@ -1893,16 +1922,39 @@ function openVideo(data) {
   document.getElementById('expiryDate').textContent =
     expiryDate.toLocaleDateString('ar-EG', options);
 
-  const lectureData = lecturesData[data.lectureName];
-  if (lectureData) {
-    const videoEl = document.getElementById('lectureVideo');
-    videoEl.querySelector('source').src = lectureData.video;
-    videoEl.load();
+  const encryptedUrl = encryptedVideos[data.lectureName];
+  if (!encryptedUrl) {
+    alert('⚠️ الفيديو غير متاح حالياً');
+    return;
   }
+
+  const videoUrl = decodeUrl(encryptedUrl);
+
+  const wrapper = document.getElementById('videoWrapper');
+  wrapper.innerHTML = '';
+
+  const videoEl = document.createElement('video');
+  videoEl.controls = true;
+  videoEl.controlsList = 'nodownload noplaybackrate noremoteplayback';
+  videoEl.disablePictureInPicture = true;
+  videoEl.setAttribute('oncontextmenu', 'return false;');
+  videoEl.setAttribute('playsinline', '');
+  videoEl.setAttribute('preload', 'metadata');
+
+  const sourceEl = document.createElement('source');
+  sourceEl.src = videoUrl;
+  sourceEl.type = 'video/mp4';
+
+  videoEl.appendChild(sourceEl);
+  wrapper.appendChild(videoEl);
+
+  videoEl.load();
+
+  videoEl.addEventListener('contextmenu', e => e.preventDefault());
 }
 
 /* =========================================
-   توليد كود جديد (للأدمن)
+   توليد كود جديد
    ========================================= */
 function generateRandomCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -2165,6 +2217,76 @@ function getAuthErrorMessage(code) {
   };
   return messages[code] || 'حدث خطأ، جرب مرة أخرى';
 }
+
+/* =========================================
+   🛡️ حماية F12 و DevTools
+   ========================================= */
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'F12' || e.keyCode === 123) {
+    e.preventDefault();
+    return false;
+  }
+  if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.keyCode === 73)) {
+    e.preventDefault();
+    return false;
+  }
+  if (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j' || e.keyCode === 74)) {
+    e.preventDefault();
+    return false;
+  }
+  if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c' || e.keyCode === 67)) {
+    e.preventDefault();
+    return false;
+  }
+  if (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.keyCode === 85)) {
+    e.preventDefault();
+    return false;
+  }
+  if (e.ctrlKey && (e.key === 'S' || e.key === 's' || e.keyCode === 83)) {
+    e.preventDefault();
+    return false;
+  }
+  if (e.ctrlKey && (e.key === 'P' || e.key === 'p' || e.keyCode === 80)) {
+    e.preventDefault();
+    return false;
+  }
+});
+
+document.addEventListener('contextmenu', function(e) {
+  e.preventDefault();
+  return false;
+});
+
+document.addEventListener('dragstart', function(e) {
+  e.preventDefault();
+  return false;
+});
+
+(function detectDevTools() {
+  const threshold = 160;
+  let warningShown = false;
+
+  setInterval(function() {
+    const widthDiff = window.outerWidth - window.innerWidth;
+    const heightDiff = window.outerHeight - window.innerHeight;
+
+    if (widthDiff > threshold || heightDiff > threshold) {
+      if (!warningShown) {
+        warningShown = true;
+        document.getElementById('warningOverlay').classList.add('show');
+      }
+    } else {
+      if (warningShown) {
+        warningShown = false;
+        document.getElementById('warningOverlay').classList.remove('show');
+      }
+    }
+  }, 1000);
+})();
+
+console.log('%c⚠️ تحذير!', 'color: red; font-size: 30px; font-weight: bold;');
+console.log('%cهذه الصفحة محمية. استخدام DevTools يعرض حسابك للحظر.', 'color: red; font-size: 16px;');
 
 /* =========================================
    Enter للتحقق
