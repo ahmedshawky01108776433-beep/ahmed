@@ -11,1069 +11,603 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Cairo', sans-serif;
-}
-
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
 html { scroll-behavior: smooth; }
-
 body {
-  background: #0d1117;
-  color: white;
-  overflow-x: hidden;
-  min-height: 100vh;
-  user-select: none;
-  -webkit-user-select: none;
+  background: #0d1117; color: white; overflow-x: hidden;
+  min-height: 100vh; user-select: none; -webkit-user-select: none;
   -webkit-touch-callout: none;
 }
-
 a { text-decoration: none; color: white; }
 
-/* ===== NAVBAR ===== */
+/* ===== Theme Colors (لون واحد للاتنين) ===== */
+body.theme-online,
+body.theme-center {
+  --main-color: #00d4ff;
+  --main-color-dark: #0099cc;
+  --main-color-rgb: 0,212,255;
+}
+body { --main-color: #00d4ff; --main-color-dark: #0099cc; --main-color-rgb: 0,212,255; }
+
+/* NAVBAR */
 .navbar {
-  width: 100%;
-  padding: 20px 8%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: fixed;
-  top: 0;
-  z-index: 1000;
-  background: rgba(0,0,0,0.7);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(0,212,255,0.15);
+  width: 100%; padding: 20px 8%;
+  display: flex; justify-content: space-between; align-items: center;
+  position: fixed; top: 0; z-index: 1000;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(var(--main-color-rgb), 0.15);
+  transition: border-color 0.3s;
 }
-
 .logo {
-  font-size: 28px;
-  font-weight: 800;
-  color: #00d4ff;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  font-size: 28px; font-weight: 800; color: var(--main-color);
+  display: flex; align-items: center; gap: 10px;
+  transition: color 0.3s;
 }
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  font-size: 14px;
-}
-
-.user-info strong { color: #00d4ff; }
-
-.user-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 2px solid #00d4ff;
-  object-fit: cover;
-}
-
-.btn-logout {
-  background: #ef4444;
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.logo-badge {
+  font-size: 11px; padding: 4px 10px; border-radius: 50px;
+  background: rgba(var(--main-color-rgb), 0.15);
+  border: 1px solid rgba(var(--main-color-rgb), 0.4);
+  color: var(--main-color); font-weight: 700; margin-right: 8px;
   transition: all 0.3s;
 }
-
-.btn-logout:hover {
-  background: #dc2626;
-  transform: translateY(-2px);
+.user-info { display: flex; align-items: center; gap: 15px; font-size: 14px; }
+.user-info strong { color: var(--main-color); }
+.user-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 2px solid var(--main-color); object-fit: cover;
 }
-
-/* ===== PAGES ===== */
-.page {
-  display: none;
-  min-height: 100vh;
-  padding: 120px 5% 60px;
+.btn-logout {
+  background: #ef4444; color: white; border: none;
+  padding: 10px 18px; border-radius: 10px; cursor: pointer;
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  display: flex; align-items: center; gap: 8px; transition: all 0.3s;
 }
-
-.page.active {
-  display: flex;
-  animation: fadeIn 0.5s ease;
+.btn-logout:hover { background: #dc2626; transform: translateY(-2px); }
+.btn-back-platform {
+  background: rgba(255,255,255,0.05); color: #94a3b8;
+  border: 1px solid #334155;
+  padding: 10px 16px; border-radius: 10px; cursor: pointer;
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  display: flex; align-items: center; gap: 8px; transition: all 0.3s;
 }
+.btn-back-platform:hover { background: #1e293b; color: var(--main-color); }
 
+/* PAGES */
+.page { display: none; min-height: 100vh; padding: 120px 5% 60px; }
+.page.active { display: flex; animation: fadeIn 0.5s ease; }
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ===== PLATFORM SELECT PAGE ===== */
+#platformPage {
+  align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #020617, #0f172a, #111827);
+  position: relative; overflow: hidden;
+}
+#platformPage::before {
+  content: ''; position: absolute; width: 600px; height: 600px;
+  background: #00d4ff22; border-radius: 50%; top: -200px; left: -200px;
+  filter: blur(100px);
+}
+#platformPage::after {
+  content: ''; position: absolute; width: 500px; height: 500px;
+  background: #0099cc22; border-radius: 50%; bottom: -200px; right: -200px;
+  filter: blur(100px);
+}
+.platform-container {
+  max-width: 950px; width: 100%; text-align: center;
+  z-index: 2; position: relative;
+}
+.platform-logo {
+  font-size: 60px; color: #00d4ff; margin-bottom: 20px;
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+.platform-container h1 {
+  font-size: 48px; margin-bottom: 15px; font-weight: 800;
+}
+.platform-container h1 span { color: #00d4ff; }
+.platform-container > p {
+  color: #94a3b8; font-size: 18px; margin-bottom: 55px;
+}
+.platform-cards {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
+}
+.platform-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 25px; padding: 50px 30px;
+  cursor: pointer; transition: all 0.4s;
+  backdrop-filter: blur(15px);
+  position: relative; overflow: hidden;
+}
+.platform-card::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 100%; height: 4px; transition: all 0.4s;
+  background: linear-gradient(90deg, #00d4ff, #0099cc);
+}
+
+.platform-card:hover { transform: translateY(-12px); }
+.platform-card:hover {
+  border-color: #00d4ff;
+  box-shadow: 0 25px 60px rgba(0,212,255,0.3);
+}
+
+.platform-icon {
+  width: 100px; height: 100px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 25px;
+  font-size: 45px; color: #000; transition: all 0.4s;
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  box-shadow: 0 15px 40px rgba(0,212,255,0.4);
+}
+.platform-card:hover .platform-icon { transform: scale(1.1) rotate(5deg); }
+.platform-card h2 { font-size: 28px; margin-bottom: 15px; font-weight: 800; color: #00d4ff; }
+.platform-card p {
+  color: #94a3b8; font-size: 14px; line-height: 1.9; margin-bottom: 20px;
+}
+.platform-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 12px 28px; border-radius: 12px;
+  font-weight: 700; font-size: 14px; transition: all 0.3s;
+  background: linear-gradient(135deg, #00d4ff, #0099cc); color: #000;
+}
+
 /* ===== AUTH PAGE ===== */
 #authPage {
-  align-items: center;
-  justify-content: center;
+  align-items: center; justify-content: center;
   background: linear-gradient(135deg, #020617, #0f172a, #111827);
-  position: relative;
-  overflow: hidden;
+  position: relative; overflow: hidden;
 }
-
 #authPage::before {
-  content: '';
-  position: absolute;
-  width: 600px;
-  height: 600px;
-  background: #00d4ff22;
-  border-radius: 50%;
-  top: -200px;
-  left: -200px;
-  filter: blur(100px);
+  content: ''; position: absolute; width: 600px; height: 600px;
+  background: rgba(var(--main-color-rgb), 0.13);
+  border-radius: 50%; top: -200px; left: -200px;
+  filter: blur(100px); transition: all 0.5s;
 }
-
 #authPage::after {
-  content: '';
-  position: absolute;
-  width: 400px;
-  height: 400px;
-  background: #8b5cf622;
-  border-radius: 50%;
-  bottom: -150px;
-  right: -150px;
+  content: ''; position: absolute; width: 400px; height: 400px;
+  background: #8b5cf622; border-radius: 50%; bottom: -150px; right: -150px;
   filter: blur(100px);
 }
-
 .auth-container {
-  max-width: 1200px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 60px;
-  z-index: 2;
-  position: relative;
+  max-width: 1200px; width: 100%;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 60px; z-index: 2; position: relative;
 }
-
 .auth-text { flex: 1; }
-
-.auth-text h1 {
-  font-size: 55px;
-  line-height: 1.2;
-  margin-bottom: 20px;
-}
-
-.auth-text h1 span { color: #00d4ff; }
-
-.auth-text > p {
-  font-size: 18px;
-  color: #cbd5e1;
-  margin-bottom: 35px;
-  line-height: 1.9;
-}
-
+.auth-text h1 { font-size: 55px; line-height: 1.2; margin-bottom: 20px; }
+.auth-text h1 span { color: var(--main-color); transition: color 0.3s; }
+.auth-text > p { font-size: 18px; color: #cbd5e1; margin-bottom: 35px; line-height: 1.9; }
 .auth-box {
-  max-width: 450px;
-  background: rgba(255,255,255,0.04);
-  padding: 35px 30px;
-  border-radius: 20px;
+  max-width: 450px; background: rgba(255,255,255,0.04);
+  padding: 35px 30px; border-radius: 20px;
   border: 1px solid rgba(255,255,255,0.08);
-  backdrop-filter: blur(15px);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-}
-
-.auth-tabs {
-  display: flex;
-  background: #0f172a;
-  border-radius: 12px;
-  padding: 5px;
-  margin-bottom: 20px;
-}
-
-.auth-tab {
-  flex: 1;
-  padding: 12px;
-  text-align: center;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 14px;
-  color: #94a3b8;
-  transition: all 0.3s;
-  border: none;
-  background: transparent;
-  font-family: inherit;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.auth-tab.active {
-  background: #00d4ff;
-  color: #000;
-}
-
-.auth-box h3 {
-  color: #00d4ff;
-  font-size: 20px;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.input-group {
+  backdrop-filter: blur(15px); box-shadow: 0 20px 60px rgba(0,0,0,0.4);
   position: relative;
-  margin-bottom: 15px;
 }
-
+.auth-platform-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(var(--main-color-rgb), 0.1);
+  border: 1px solid rgba(var(--main-color-rgb), 0.3);
+  color: var(--main-color);
+  padding: 8px 16px; border-radius: 50px;
+  font-size: 13px; font-weight: 700; margin-bottom: 20px;
+}
+.auth-tabs {
+  display: flex; background: #0f172a; border-radius: 12px;
+  padding: 5px; margin-bottom: 20px;
+}
+.auth-tab {
+  flex: 1; padding: 12px; text-align: center; border-radius: 8px;
+  cursor: pointer; font-weight: 600; font-size: 14px; color: #94a3b8;
+  transition: all 0.3s; border: none; background: transparent;
+  font-family: inherit; display: flex; align-items: center;
+  justify-content: center; gap: 8px;
+}
+.auth-tab.active { background: var(--main-color); color: #000; }
+.auth-box h3 {
+  color: var(--main-color); font-size: 20px; margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.input-group { position: relative; margin-bottom: 15px; }
 .input-group i {
-  position: absolute;
-  right: 18px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #64748b;
-  font-size: 16px;
+  position: absolute; right: 18px; top: 50%;
+  transform: translateY(-50%); color: #64748b; font-size: 16px;
 }
-
 .input-group input {
-  width: 100%;
-  padding: 15px 50px 15px 15px;
-  border: 2px solid #1e293b;
-  border-radius: 12px;
-  background: #0f172a;
-  color: white;
-  font-size: 15px;
-  font-family: inherit;
-  transition: all 0.3s;
+  width: 100%; padding: 15px 50px 15px 15px;
+  border: 2px solid #1e293b; border-radius: 12px;
+  background: #0f172a; color: white; font-size: 15px;
+  font-family: inherit; transition: all 0.3s;
 }
-
 .input-group input:focus {
-  outline: none;
-  border-color: #00d4ff;
-  background: #1e293b;
-  box-shadow: 0 0 0 4px rgba(0,212,255,0.1);
+  outline: none; border-color: var(--main-color); background: #1e293b;
+  box-shadow: 0 0 0 4px rgba(var(--main-color-rgb), 0.1);
 }
-
-.input-group input.error {
-  border-color: #ef4444;
-  animation: shake 0.4s;
-}
-
+.input-group input.error { border-color: #ef4444; animation: shake 0.4s; }
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-10px); }
   75% { transform: translateX(10px); }
 }
-
 .error-msg, .success-msg {
-  font-size: 14px;
-  display: none;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 15px;
-  border-radius: 10px;
-  margin-bottom: 15px;
+  font-size: 14px; display: none; align-items: center;
+  gap: 8px; padding: 12px 15px; border-radius: 10px; margin-bottom: 15px;
 }
-
 .error-msg {
-  color: #ef4444;
-  background: rgba(239,68,68,0.1);
+  color: #ef4444; background: rgba(239,68,68,0.1);
   border: 1px solid rgba(239,68,68,0.3);
 }
-
 .success-msg {
-  color: #10b981;
-  background: rgba(16,185,129,0.1);
+  color: #10b981; background: rgba(16,185,129,0.1);
   border: 1px solid rgba(16,185,129,0.3);
 }
-
 .error-msg.show, .success-msg.show { display: flex; }
-
 .forgot-link {
-  color: #94a3b8;
-  font-size: 13px;
-  text-align: center;
-  cursor: pointer;
-  transition: color 0.3s;
-  margin-top: 10px;
+  color: #94a3b8; font-size: 13px; text-align: center;
+  cursor: pointer; transition: color 0.3s; margin-top: 10px;
 }
+.forgot-link:hover { color: var(--main-color); }
 
-.forgot-link:hover { color: #00d4ff; }
-
-/* ===== BUTTONS ===== */
+/* BUTTONS */
 .btn {
-  padding: 15px 30px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 700;
-  transition: 0.3s;
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
+  padding: 15px 30px; border-radius: 12px; font-size: 16px;
+  font-weight: 700; transition: 0.3s; border: none;
+  cursor: pointer; font-family: inherit;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 10px; width: 100%;
 }
-
 .btn-primary {
-  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  background: linear-gradient(135deg, var(--main-color), var(--main-color-dark));
   color: #000;
 }
-
 .btn-primary:hover {
   transform: translateY(-3px);
-  box-shadow: 0 15px 35px rgba(0,212,255,0.4);
+  box-shadow: 0 15px 35px rgba(var(--main-color-rgb), 0.4);
 }
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 .btn-google {
-  background: white;
-  color: #333;
-  border: 2px solid #e2e8f0;
+  background: white; color: #333; border: 2px solid #e2e8f0;
 }
-
 .btn-google:hover {
-  background: #f8fafc;
-  transform: translateY(-3px);
+  background: #f8fafc; transform: translateY(-3px);
   box-shadow: 0 10px 25px rgba(255,255,255,0.15);
 }
-
-.btn-google i {
-  color: #4285f4;
-  font-size: 20px;
-}
-
+.btn-google i { color: #4285f4; font-size: 20px; }
 .divider {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin: 20px 0;
-  color: #64748b;
-  font-size: 13px;
+  display: flex; align-items: center; gap: 15px;
+  margin: 20px 0; color: #64748b; font-size: 13px;
+}
+.divider::before, .divider::after {
+  content: ''; flex: 1; height: 1px; background: #334155;
 }
 
-.divider::before,
-.divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: #334155;
-}
-
-/* ===== TEACHER CARD ===== */
-.teacher-side {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-}
-
-.teacher-card {
-  width: 340px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 25px;
-  padding: 30px;
-  text-align: center;
-  backdrop-filter: blur(15px);
-  box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-  animation: float 4s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-15px); }
-}
-
-.teacher-card img {
-  width: 170px;
-  height: 170px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 5px solid #00d4ff;
-  margin-bottom: 20px;
-}
-
-.teacher-card h2 {
-  font-size: 28px;
-  margin-bottom: 10px;
-}
-
-.teacher-card p {
-  color: #cbd5e1;
-  line-height: 1.8;
-  font-size: 15px;
-}
-
-/* ===== LECTURES PAGE ===== */
-#lecturesPage {
-  flex-direction: column;
-  background: #0d1117;
-}
-
-.page-header {
-  text-align: center;
-  margin-bottom: 50px;
-}
-
-.page-header h1 {
-  font-size: 42px;
-  margin-bottom: 10px;
-}
-
-.page-header h1 span { color: #00d4ff; }
-
-.page-header p {
-  color: #94a3b8;
-  font-size: 16px;
-}
-
+/* LECTURES PAGE */
+#lecturesPage { flex-direction: column; background: #0d1117; }
+.page-header { text-align: center; margin-bottom: 50px; }
+.page-header h1 { font-size: 42px; margin-bottom: 10px; }
+.page-header h1 span { color: var(--main-color); }
+.page-header p { color: #94a3b8; font-size: 16px; }
 .lectures-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 25px;
-  max-width: 1100px;
-  margin: 0 auto;
-  width: 100%;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px; max-width: 1100px; margin: 0 auto; width: 100%;
 }
-
 .lecture-card {
   background: linear-gradient(135deg, #1e293b, #0f172a);
-  border: 1px solid #334155;
-  border-radius: 20px;
-  padding: 30px;
-  cursor: pointer;
-  transition: all 0.3s;
-  position: relative;
-  overflow: hidden;
+  border: 1px solid #334155; border-radius: 20px;
+  padding: 30px; cursor: pointer; transition: all 0.3s;
+  position: relative; overflow: hidden;
 }
-
 .lecture-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 150px;
-  height: 150px;
-  background: #00d4ff11;
-  border-radius: 50%;
-  filter: blur(40px);
-  transition: all 0.3s;
+  content: ''; position: absolute; top: 0; right: 0;
+  width: 150px; height: 150px;
+  background: rgba(var(--main-color-rgb), 0.07);
+  border-radius: 50%; filter: blur(40px); transition: all 0.3s;
 }
-
 .lecture-card:hover {
-  transform: translateY(-10px);
-  border-color: #00d4ff;
-  box-shadow: 0 20px 45px rgba(0,212,255,0.2);
+  transform: translateY(-10px); border-color: var(--main-color);
+  box-shadow: 0 20px 45px rgba(var(--main-color-rgb), 0.2);
 }
-
-.lecture-card:hover::before {
-  background: #00d4ff33;
-}
-
+.lecture-card:hover::before { background: rgba(var(--main-color-rgb), 0.2); }
 .lecture-icon {
-  width: 70px;
-  height: 70px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #00d4ff, #0099cc);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
-  font-size: 30px;
-  color: #000;
-  box-shadow: 0 10px 25px rgba(0,212,255,0.3);
+  width: 70px; height: 70px; border-radius: 18px;
+  background: linear-gradient(135deg, var(--main-color), var(--main-color-dark));
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px; font-size: 30px; color: #000;
+  box-shadow: 0 10px 25px rgba(var(--main-color-rgb), 0.3);
 }
-
 .lecture-card h3 {
-  font-size: 22px;
-  margin-bottom: 12px;
-  color: white;
-  position: relative;
-  z-index: 1;
+  font-size: 22px; margin-bottom: 12px; color: white;
+  position: relative; z-index: 1;
 }
-
 .lecture-card p {
-  color: #94a3b8;
-  font-size: 14px;
-  line-height: 1.7;
-  margin-bottom: 20px;
-  position: relative;
-  z-index: 1;
+  color: #94a3b8; font-size: 14px; line-height: 1.7;
+  margin-bottom: 20px; position: relative; z-index: 1;
 }
-
 .lecture-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(0,212,255,0.1);
-  border: 1px solid rgba(0,212,255,0.3);
-  color: #00d4ff;
-  padding: 6px 15px;
-  border-radius: 50px;
-  font-size: 13px;
-  font-weight: 600;
-  position: relative;
-  z-index: 1;
-  transition: all 0.3s;
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(var(--main-color-rgb), 0.1);
+  border: 1px solid rgba(var(--main-color-rgb), 0.3);
+  color: var(--main-color); padding: 6px 15px; border-radius: 50px;
+  font-size: 13px; font-weight: 600; position: relative;
+  z-index: 1; transition: all 0.3s;
 }
-
 .lecture-badge.unlocked {
   background: rgba(16,185,129,0.15);
-  border-color: rgba(16,185,129,0.5);
-  color: #10b981;
+  border-color: rgba(16,185,129,0.5); color: #10b981;
 }
 
-/* ===== CODE PAGE ===== */
+/* CODE PAGE */
 #codePage {
-  align-items: center;
-  justify-content: center;
+  align-items: center; justify-content: center;
   background: linear-gradient(135deg, #020617, #0f172a);
 }
-
 .code-container {
-  max-width: 500px;
-  width: 100%;
-  background: rgba(255,255,255,0.04);
-  padding: 40px 35px;
-  border-radius: 25px;
-  border: 1px solid rgba(255,255,255,0.08);
-  backdrop-filter: blur(15px);
-  box-shadow: 0 25px 70px rgba(0,0,0,0.5);
-  text-align: center;
-  position: relative;
+  max-width: 500px; width: 100%;
+  background: rgba(255,255,255,0.04); padding: 40px 35px;
+  border-radius: 25px; border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(15px); box-shadow: 0 25px 70px rgba(0,0,0,0.5);
+  text-align: center; position: relative;
 }
-
 .code-back {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: rgba(255,255,255,0.05);
-  color: #00d4ff;
-  border: 1px solid rgba(0,212,255,0.3);
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: absolute; top: 20px; right: 20px;
+  background: rgba(255,255,255,0.05); color: var(--main-color);
+  border: 1px solid rgba(var(--main-color-rgb), 0.3);
+  width: 40px; height: 40px; border-radius: 10px;
+  cursor: pointer; font-size: 16px; transition: all 0.3s;
+  display: flex; align-items: center; justify-content: center;
 }
-
-.code-back:hover {
-  background: #00d4ff;
-  color: #000;
-}
-
+.code-back:hover { background: var(--main-color); color: #000; }
 .code-icon {
-  width: 90px;
-  height: 90px;
-  margin: 0 auto 20px;
-  background: linear-gradient(135deg, #00d4ff, #0099cc);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 15px 40px rgba(0,212,255,0.4);
+  width: 90px; height: 90px; margin: 0 auto 20px;
+  background: linear-gradient(135deg, var(--main-color), var(--main-color-dark));
+  border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; box-shadow: 0 15px 40px rgba(var(--main-color-rgb), 0.4);
   animation: pulse 2s infinite;
 }
-
 @keyframes pulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.05); }
 }
-
-.code-icon i {
-  font-size: 40px;
-  color: white;
-}
-
-.code-container h2 {
-  font-size: 26px;
-  margin-bottom: 10px;
-}
-
+.code-icon i { font-size: 40px; color: white; }
+.code-container h2 { font-size: 26px; margin-bottom: 10px; }
 .code-lecture-name {
-  color: #00d4ff;
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 25px;
-  padding: 12px 20px;
-  background: rgba(0,212,255,0.1);
-  border: 1px solid rgba(0,212,255,0.3);
-  border-radius: 12px;
-  display: inline-block;
+  color: var(--main-color); font-size: 16px; font-weight: 700;
+  margin-bottom: 25px; padding: 12px 20px;
+  background: rgba(var(--main-color-rgb), 0.1);
+  border: 1px solid rgba(var(--main-color-rgb), 0.3);
+  border-radius: 12px; display: inline-block;
 }
-
-.code-container > p {
-  color: #94a3b8;
-  font-size: 14px;
-  margin-bottom: 25px;
-  line-height: 1.7;
-}
-
-.code-input-group {
-  position: relative;
-  margin-bottom: 20px;
-}
-
+.code-container > p { color: #94a3b8; font-size: 14px; margin-bottom: 25px; line-height: 1.7; }
+.code-input-group { position: relative; margin-bottom: 20px; }
 .code-input-group i {
-  position: absolute;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #64748b;
-  font-size: 18px;
+  position: absolute; right: 20px; top: 50%;
+  transform: translateY(-50%); color: #64748b; font-size: 18px;
 }
-
 .code-input-group input {
-  width: 100%;
-  padding: 18px 55px 18px 20px;
-  border: 2px solid #1e293b;
-  border-radius: 15px;
-  background: #0f172a;
-  color: white;
-  font-size: 20px;
-  font-family: 'Courier New', monospace;
-  font-weight: 700;
-  letter-spacing: 3px;
-  text-align: center;
-  text-transform: uppercase;
+  width: 100%; padding: 18px 55px 18px 20px;
+  border: 2px solid #1e293b; border-radius: 15px;
+  background: #0f172a; color: white; font-size: 20px;
+  font-family: 'Courier New', monospace; font-weight: 700;
+  letter-spacing: 3px; text-align: center; text-transform: uppercase;
   transition: all 0.3s;
 }
-
 .code-input-group input:focus {
-  outline: none;
-  border-color: #00d4ff;
-  background: #1e293b;
-  box-shadow: 0 0 0 5px rgba(0,212,255,0.15);
+  outline: none; border-color: var(--main-color); background: #1e293b;
+  box-shadow: 0 0 0 5px rgba(var(--main-color-rgb), 0.15);
 }
+.code-input-group input.error { border-color: #ef4444; animation: shake 0.4s; }
 
-.code-input-group input.error {
-  border-color: #ef4444;
-  animation: shake 0.4s;
-}
-
-/* ===== VIDEO PAGE ===== */
-#videoPage {
-  flex-direction: column;
-  background: #0d1117;
-}
-
-.video-container {
-  max-width: 1100px;
-  margin: 0 auto;
-  width: 100%;
-}
-
+/* VIDEO PAGE */
+#videoPage { flex-direction: column; background: #0d1117; }
+.video-container { max-width: 1100px; margin: 0 auto; width: 100%; }
 .video-header {
   background: linear-gradient(135deg, #1e293b, #0f172a);
-  border-radius: 20px;
-  padding: 25px 30px;
-  margin-bottom: 25px;
-  border: 1px solid rgba(0,212,255,0.2);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 15px;
+  border-radius: 20px; padding: 25px 30px; margin-bottom: 25px;
+  border: 1px solid rgba(var(--main-color-rgb), 0.2);
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 15px;
 }
-
 .video-header h2 {
-  font-size: 22px;
-  color: #00d4ff;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  font-size: 22px; color: var(--main-color);
+  display: flex; align-items: center; gap: 12px;
 }
-
 .video-info {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  color: #94a3b8;
-  font-size: 13px;
+  display: flex; gap: 20px; flex-wrap: wrap;
+  color: #94a3b8; font-size: 13px;
 }
-
-.video-info span {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
+.video-info span { display: flex; align-items: center; gap: 6px; }
 .video-info strong { color: #10b981; }
-
 .video-wrapper {
-  background: #000;
-  border-radius: 20px;
-  overflow: hidden;
+  background: #000; border-radius: 20px; overflow: hidden;
   box-shadow: 0 25px 60px rgba(0,0,0,0.5);
-  border: 1px solid #1e293b;
-  position: relative;
+  border: 1px solid #1e293b; position: relative;
 }
-
-.video-wrapper video {
-  width: 100%;
-  display: block;
-  pointer-events: auto;
-}
-
+.video-wrapper video { width: 100%; display: block; pointer-events: auto; }
 .back-btn {
-  background: rgba(255,255,255,0.05);
-  color: #00d4ff;
-  border: 2px solid #00d4ff33;
-  padding: 12px 22px;
-  border-radius: 12px;
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  transition: all 0.3s;
+  background: rgba(255,255,255,0.05); color: var(--main-color);
+  border: 2px solid rgba(var(--main-color-rgb), 0.2);
+  padding: 12px 22px; border-radius: 12px;
+  font-family: inherit; font-size: 15px; font-weight: 700;
+  cursor: pointer; display: inline-flex;
+  align-items: center; gap: 10px; transition: all 0.3s;
   margin-bottom: 20px;
 }
-
 .back-btn:hover {
-  background: #00d4ff;
-  color: #000;
-  transform: translateX(-5px);
+  background: var(--main-color); color: #000; transform: translateX(-5px);
 }
 
-/* ===== ADMIN PAGE ===== */
-#adminPage {
-  flex-direction: column;
-  background: #0d1117;
-}
-
-.admin-container {
-  max-width: 1100px;
-  margin: 0 auto;
-  width: 100%;
-}
-
+/* ADMIN PAGE */
+#adminPage { flex-direction: column; background: #0d1117; }
+.admin-container { max-width: 1100px; margin: 0 auto; width: 100%; }
 .admin-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
-  margin-bottom: 30px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 30px; margin-bottom: 30px;
 }
-
 .admin-card {
-  background: #1e293b;
-  padding: 30px;
-  border-radius: 20px;
-  border: 1px solid #334155;
+  background: #1e293b; padding: 30px;
+  border-radius: 20px; border: 1px solid #334155;
 }
-
 .admin-card h3 {
-  color: #00d4ff;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 20px;
+  color: var(--main-color); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px; font-size: 20px;
 }
-
 .form-row {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 18px;
+  display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px;
 }
-
-.form-row label {
-  color: #cbd5e1;
-  font-size: 14px;
-  font-weight: 600;
+.form-row label { color: #cbd5e1; font-size: 14px; font-weight: 600; }
+.form-row input, .form-row select {
+  padding: 14px 18px; border: 2px solid #334155;
+  border-radius: 10px; background: #0f172a; color: white;
+  font-size: 15px; font-family: inherit; transition: all 0.3s;
 }
-
-.form-row input,
-.form-row select {
-  padding: 14px 18px;
-  border: 2px solid #334155;
-  border-radius: 10px;
-  background: #0f172a;
-  color: white;
-  font-size: 15px;
-  font-family: inherit;
-  transition: all 0.3s;
+.form-row input:focus, .form-row select:focus {
+  outline: none; border-color: var(--main-color);
 }
-
-.form-row input:focus,
-.form-row select:focus {
-  outline: none;
-  border-color: #00d4ff;
-}
-
 .generate-btn {
   background: linear-gradient(135deg, #10b981, #059669);
-  color: white;
-  padding: 16px;
-  border: none;
-  border-radius: 12px;
-  font-family: inherit;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+  color: white; padding: 16px; border: none; border-radius: 12px;
+  font-family: inherit; font-size: 16px; font-weight: 700;
+  cursor: pointer; transition: all 0.3s; width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
 }
-
 .generate-btn:hover {
   transform: translateY(-3px);
   box-shadow: 0 15px 30px rgba(16,185,129,0.4);
 }
-
 .generated-result {
   display: none;
   background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.1));
-  border: 2px solid #10b981;
-  border-radius: 15px;
-  padding: 25px;
-  margin-top: 20px;
-  text-align: center;
+  border: 2px solid #10b981; border-radius: 15px;
+  padding: 25px; margin-top: 20px; text-align: center;
 }
-
 .generated-result.show { display: block; }
-
 .generated-result .code-display {
-  font-size: 32px;
-  font-weight: 800;
-  color: #10b981;
-  letter-spacing: 5px;
-  margin: 15px 0;
+  font-size: 32px; font-weight: 800; color: #10b981;
+  letter-spacing: 5px; margin: 15px 0;
   font-family: 'Courier New', monospace;
-  user-select: all;
-  cursor: pointer;
+  user-select: all; cursor: pointer;
 }
-
 .copy-btn {
-  background: #10b981;
-  color: white;
-  padding: 12px 25px;
-  border: none;
-  border-radius: 10px;
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  background: #10b981; color: white; padding: 12px 25px;
+  border: none; border-radius: 10px; font-family: inherit;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
   transition: all 0.3s;
 }
-
 .copy-btn:hover { background: #059669; }
-
 .stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
-  margin-bottom: 25px;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 15px; margin-bottom: 25px;
 }
-
 .stat-card {
-  background: #0f172a;
-  padding: 18px;
-  border-radius: 12px;
-  text-align: center;
-  border: 1px solid #334155;
+  background: #0f172a; padding: 18px; border-radius: 12px;
+  text-align: center; border: 1px solid #334155;
 }
-
 .stat-card .stat-num {
-  font-size: 28px;
-  font-weight: 800;
-  color: #00d4ff;
-  margin-bottom: 5px;
+  font-size: 28px; font-weight: 800; color: var(--main-color); margin-bottom: 5px;
 }
-
-.stat-card .stat-label {
-  font-size: 12px;
-  color: #94a3b8;
-}
-
+.stat-card .stat-label { font-size: 12px; color: #94a3b8; }
 .codes-list {
-  background: #1e293b;
-  border-radius: 20px;
-  padding: 30px;
-  border: 1px solid #334155;
+  background: #1e293b; border-radius: 20px;
+  padding: 30px; border: 1px solid #334155;
 }
-
 .codes-list h3 {
-  color: #00d4ff;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  color: var(--main-color); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
 }
-
-.codes-table {
-  width: 100%;
-  overflow-x: auto;
-}
-
+.codes-table { width: 100%; overflow-x: auto; }
 .codes-table table {
-  width: 100%;
-  min-width: 700px;
-  border-collapse: collapse;
+  width: 100%; min-width: 700px; border-collapse: collapse;
 }
-
 .codes-table th {
-  text-align: right;
-  padding: 15px;
-  background: #0f172a;
-  color: #00d4ff;
-  font-size: 13px;
-  font-weight: 700;
-  border-bottom: 2px solid #00d4ff33;
+  text-align: right; padding: 15px; background: #0f172a;
+  color: var(--main-color); font-size: 13px; font-weight: 700;
+  border-bottom: 2px solid rgba(var(--main-color-rgb), 0.2);
 }
-
 .codes-table td {
-  padding: 15px;
-  border-bottom: 1px solid #33415555;
-  color: #cbd5e1;
-  font-size: 14px;
+  padding: 15px; border-bottom: 1px solid #33415555;
+  color: #cbd5e1; font-size: 14px;
 }
-
 .code-chip {
-  background: #0f172a;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-family: 'Courier New', monospace;
-  font-weight: 700;
-  color: #00d4ff;
-  font-size: 13px;
-  display: inline-block;
+  background: #0f172a; padding: 6px 12px; border-radius: 8px;
+  font-family: 'Courier New', monospace; font-weight: 700;
+  color: var(--main-color); font-size: 13px; display: inline-block;
 }
-
 .status-badge {
-  padding: 5px 12px;
-  border-radius: 50px;
-  font-size: 12px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+  padding: 5px 12px; border-radius: 50px; font-size: 12px;
+  font-weight: 700; display: inline-flex; align-items: center; gap: 5px;
 }
-
 .status-active { background: rgba(0,212,255,0.15); color: #00d4ff; }
 .status-expired { background: rgba(239,68,68,0.15); color: #ef4444; }
 .status-used { background: rgba(16,185,129,0.15); color: #10b981; }
-
 .delete-btn {
-  background: rgba(239,68,68,0.15);
-  color: #ef4444;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s;
+  background: rgba(239,68,68,0.15); color: #ef4444;
+  border: none; padding: 8px 12px; border-radius: 8px;
+  cursor: pointer; transition: all 0.3s;
 }
-
 .delete-btn:hover { background: #ef4444; color: white; }
-
 .empty-state {
-  text-align: center;
-  padding: 40px 20px;
-  color: #64748b;
+  text-align: center; padding: 40px 20px; color: #64748b;
 }
-
 .empty-state i {
-  font-size: 50px;
-  margin-bottom: 15px;
-  opacity: 0.4;
-  display: block;
+  font-size: 50px; margin-bottom: 15px; opacity: 0.4; display: block;
 }
 
-/* ===== RESET DEVICE CARD ===== */
+/* RESET DEVICE CARD */
 .reset-device-card {
   margin-top: 20px;
   background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(217,119,6,0.08));
   border: 1px solid rgba(245,158,11,0.3);
 }
-
-.reset-device-card h3 {
-  color: #f59e0b !important;
-}
-
+.reset-device-card h3 { color: #f59e0b !important; }
 .reset-device-btn {
   background: linear-gradient(135deg, #f59e0b, #d97706);
 }
-
 .reset-device-btn:hover {
   box-shadow: 0 15px 30px rgba(245,158,11,0.4);
 }
 
-/* ===== FOOTER ===== */
+/* FOOTER */
 .footer {
-  background: #020617;
-  text-align: center;
-  padding: 30px;
-  color: #94a3b8;
-  font-size: 14px;
+  background: #020617; text-align: center;
+  padding: 30px; color: #94a3b8; font-size: 14px;
   border-top: 1px solid #1e293b;
 }
+.footer h3 { color: var(--main-color); margin-bottom: 10px; font-size: 18px; }
 
-.footer h3 { color: #00d4ff; margin-bottom: 10px; font-size: 18px; }
-
-/* ===== WARNING OVERLAY ===== */
+/* WARNING OVERLAY */
 #warningOverlay {
-  position: fixed;
-  inset: 0;
-  background: #0d1117;
-  color: #ef4444;
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 99999;
-  font-family: Cairo, sans-serif;
-  text-align: center;
-  padding: 20px;
+  position: fixed; inset: 0; background: #0d1117;
+  color: #ef4444; display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 99999; font-family: Cairo, sans-serif;
+  text-align: center; padding: 20px;
 }
-
 #warningOverlay.show { display: flex; }
-
-#warningOverlay i {
-  font-size: 80px;
-  margin-bottom: 20px;
-}
-
-#warningOverlay h1 {
-  font-size: 32px;
-  margin-bottom: 15px;
-}
-
+#warningOverlay i { font-size: 80px; margin-bottom: 20px; }
+#warningOverlay h1 { font-size: 32px; margin-bottom: 15px; }
 #warningOverlay p {
-  font-size: 18px;
-  color: #94a3b8;
-  max-width: 500px;
-  line-height: 1.8;
+  font-size: 18px; color: #94a3b8;
+  max-width: 500px; line-height: 1.8;
 }
 
-/* ===== RESPONSIVE ===== */
+/* RESPONSIVE */
 @media(max-width: 950px) {
-  .auth-container {
-    flex-direction: column;
-    text-align: center;
-  }
+  .platform-cards { grid-template-columns: 1fr; }
+  .platform-container h1 { font-size: 32px; }
+  .platform-container > p { font-size: 15px; margin-bottom: 35px; }
+  .platform-logo { font-size: 45px; }
+  .platform-card { padding: 35px 20px; }
+  .platform-icon { width: 80px; height: 80px; font-size: 35px; }
 
+  .auth-container { flex-direction: column; text-align: center; }
   .auth-text h1 { font-size: 38px; }
   .auth-text > p { font-size: 16px; }
   .auth-box { margin: 0 auto; }
@@ -1086,60 +620,102 @@ a { text-decoration: none; color: white; }
   .video-header h2 { font-size: 18px; }
   .back-btn { width: 100%; justify-content: center; }
   .user-info span { display: none; }
+  .btn-back-platform span { display: none; }
 }
 </style>
-
 </head>
 
 <body oncontextmenu="return false;" onselectstart="return false;" ondragstart="return false;">
 
-<!-- ===== WARNING OVERLAY ===== -->
+<!-- WARNING OVERLAY -->
 <div id="warningOverlay">
   <i class="fas fa-exclamation-triangle"></i>
   <h1>🚫 تم إيقاف الصفحة</h1>
   <p>استخدام أدوات المطور غير مسموح لأسباب أمنية.<br>من فضلك اقفل DevTools وأعد تحميل الصفحة.</p>
 </div>
 
-<!-- ===== NAVBAR ===== -->
+<!-- NAVBAR -->
 <nav class="navbar">
   <div class="logo">
     <i class="fas fa-atom"></i>
     Ahmed Shawky
+    <span class="logo-badge" id="platformBadge" style="display:none;"></span>
   </div>
   <div class="user-info" id="userInfo" style="display:none;">
     <img id="userAvatar" class="user-avatar" src="" alt="avatar" style="display:none;">
     <span>مرحباً، <strong id="studentName"></strong> 👋</span>
+    <button onclick="changePlatform()" class="btn-back-platform">
+      <i class="fas fa-exchange-alt"></i>
+      <span>تغيير المنصة</span>
+    </button>
     <button onclick="logout()" class="btn-logout">
       <i class="fas fa-sign-out-alt"></i> خروج
     </button>
   </div>
   <div class="user-info" id="adminInfo" style="display:none;">
     <span>👑 <strong>الأدمن</strong></span>
+    <button onclick="changePlatform()" class="btn-back-platform">
+      <i class="fas fa-exchange-alt"></i>
+      <span>تغيير المنصة</span>
+    </button>
     <button onclick="logout()" class="btn-logout">
       <i class="fas fa-sign-out-alt"></i> خروج
     </button>
   </div>
 </nav>
 
-<!-- =========================================
-     صفحة تسجيل الدخول
-     ========================================= -->
-<section class="page active" id="authPage">
-  <div class="auth-container">
+<!-- PLATFORM SELECT PAGE -->
+<section class="page active" id="platformPage">
+  <div class="platform-container">
+    <div class="platform-logo">
+      <i class="fas fa-atom"></i>
+    </div>
+    <h1>منصة <span>أحمد شوقي</span> للفيزياء</h1>
+    <p>اختر نوع حسابك للدخول على المنصة</p>
 
+    <div class="platform-cards">
+      <div class="platform-card online" onclick="choosePlatform('online')">
+        <div class="platform-icon">
+          <i class="fas fa-globe"></i>
+        </div>
+        <h2>منصة الأونلاين</h2>
+        <p>للطلاب المسجلين في الكورس الأونلاين<br>شاهد المحاضرات من أي مكان</p>
+        <span class="platform-btn">
+          <i class="fas fa-sign-in-alt"></i>
+          دخول الأونلاين
+        </span>
+      </div>
+
+      <div class="platform-card center" onclick="choosePlatform('center')">
+        <div class="platform-icon">
+          <i class="fas fa-building"></i>
+        </div>
+        <h2>منصة السنتر</h2>
+        <p>للطلاب المسجلين في السنتر<br>شاهد المحاضرات مباشرة</p>
+        <span class="platform-btn">
+          <i class="fas fa-sign-in-alt"></i>
+          دخول السنتر
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AUTH PAGE -->
+<section class="page" id="authPage">
+  <div class="auth-container">
     <div class="auth-text">
-      <h1>
-        اتعلم الفيزياء مع
-        <span>أحمد شوقي</span>
-      </h1>
-      <p>
-        منصة تعليمية متكاملة لشرح مادة الفيزياء
-        بطريقة سهلة وعصرية للثانوية العامة.
-      </p>
+      <h1>اتعلم الفيزياء مع <span>أحمد شوقي</span></h1>
+      <p id="authSubtitle">منصة تعليمية متكاملة لشرح مادة الفيزياء بطريقة سهلة وعصرية.</p>
     </div>
 
     <div>
       <div class="auth-box">
+        <div class="auth-platform-badge" id="authPlatformBadge">
+          <i class="fas fa-globe"></i>
+          <span>منصة الأونلاين</span>
+        </div>
+
         <div class="auth-tabs">
           <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">
             <i class="fas fa-sign-in-alt"></i> دخول
@@ -1150,8 +726,7 @@ a { text-decoration: none; color: white; }
         </div>
 
         <h3 id="authTitle">
-          <i class="fas fa-lock"></i>
-          تسجيل الدخول
+          <i class="fas fa-lock"></i> تسجيل الدخول
         </h3>
 
         <div class="input-group" id="nameGroup" style="display:none;">
@@ -1185,36 +760,34 @@ a { text-decoration: none; color: white; }
         </button>
 
         <p class="forgot-link" id="forgotLink" onclick="resetPassword()">
-          <i class="fas fa-question-circle"></i>
-          نسيت كلمة المرور؟
+          <i class="fas fa-question-circle"></i> نسيت كلمة المرور؟
         </p>
 
-        <div class="divider">أو</div>
+        <div class="divider" id="googleDivider">أو</div>
 
-        <button class="btn btn-google" onclick="loginWithGoogle()">
+        <button class="btn btn-google" id="googleBtn" onclick="loginWithGoogle()">
           <i class="fab fa-google"></i>
           الدخول بحساب Google
         </button>
+
+        <p class="forgot-link" onclick="changePlatform()" style="margin-top: 15px;">
+          <i class="fas fa-arrow-right"></i> رجوع لاختيار المنصة
+        </p>
       </div>
     </div>
-
   </div>
 </section>
 
-<!-- =========================================
-     صفحة قائمة المحاضرات
-     ========================================= -->
+<!-- LECTURES PAGE -->
 <section class="page" id="lecturesPage">
   <div class="page-header">
     <h1>📚 اختر <span>المحاضرة</span></h1>
-    <p>اختر المحاضرة اللي عايز تشوفها</p>
+    <p id="lecturesSubtitle">اختر المحاضرة اللي عايز تشوفها</p>
   </div>
 
   <div class="lectures-grid">
     <div class="lecture-card" onclick="selectLecture('الفصل الثالث - محاضرة 4')">
-      <div class="lecture-icon">
-        <i class="fas fa-atom"></i>
-      </div>
+      <div class="lecture-icon"><i class="fas fa-atom"></i></div>
       <h3>الفصل الثالث - محاضرة 4</h3>
       <p>شرح مفصل لمواضيع الفصل الثالث مع أمثلة وتمارين محلولة.</p>
       <span class="lecture-badge" id="badge-0">
@@ -1223,9 +796,7 @@ a { text-decoration: none; color: white; }
     </div>
 
     <div class="lecture-card" onclick="selectLecture('الفصل الرابع - محاضرة 1')">
-      <div class="lecture-icon">
-        <i class="fas fa-flask"></i>
-      </div>
+      <div class="lecture-icon"><i class="fas fa-flask"></i></div>
       <h3>الفصل الرابع - محاضرة 1</h3>
       <p>مقدمة عن الفصل الرابع وأهم القوانين والمسائل.</p>
       <span class="lecture-badge" id="badge-1">
@@ -1234,9 +805,7 @@ a { text-decoration: none; color: white; }
     </div>
 
     <div class="lecture-card" onclick="selectLecture('مراجعة نهائية شاملة')">
-      <div class="lecture-icon">
-        <i class="fas fa-graduation-cap"></i>
-      </div>
+      <div class="lecture-icon"><i class="fas fa-graduation-cap"></i></div>
       <h3>مراجعة نهائية شاملة</h3>
       <p>مراجعة كل المنهج مع أهم الأسئلة المتوقعة.</p>
       <span class="lecture-badge" id="badge-2">
@@ -1246,32 +815,22 @@ a { text-decoration: none; color: white; }
   </div>
 </section>
 
-<!-- =========================================
-     صفحة إدخال الكود
-     ========================================= -->
+<!-- CODE PAGE -->
 <section class="page" id="codePage">
   <div class="code-container">
-
     <button class="code-back" onclick="goBackToLectures()">
       <i class="fas fa-arrow-right"></i>
     </button>
 
-    <div class="code-icon">
-      <i class="fas fa-ticket-alt"></i>
-    </div>
+    <div class="code-icon"><i class="fas fa-ticket-alt"></i></div>
 
     <h2>🎫 ادخل كود المحاضرة</h2>
     <p id="selectedLectureName" class="code-lecture-name">المحاضرة</p>
-
     <p>اكتب الكود اللي وصلك من المدرس عشان تفتح المحاضرة</p>
 
     <div class="code-input-group">
       <i class="fas fa-key"></i>
-      <input type="text"
-             id="accessCode"
-             placeholder="PHYS-XXXXX"
-             autocomplete="off"
-             maxlength="20">
+      <input type="text" id="accessCode" placeholder="PHYS-XXXXX" autocomplete="off" maxlength="20">
     </div>
 
     <p class="error-msg" id="codeError">
@@ -1285,22 +844,16 @@ a { text-decoration: none; color: white; }
     </p>
 
     <button class="btn btn-primary" id="verifyBtn" onclick="verifyAccessCode()">
-      <i class="fas fa-unlock"></i>
-      فتح المحاضرة
+      <i class="fas fa-unlock"></i> فتح المحاضرة
     </button>
-
   </div>
 </section>
 
-<!-- =========================================
-     صفحة الفيديو (محمية)
-     ========================================= -->
+<!-- VIDEO PAGE -->
 <section class="page" id="videoPage">
   <div class="video-container">
-
     <button class="back-btn" onclick="goBackToLectures()">
-      <i class="fas fa-arrow-right"></i>
-      رجوع لقائمة المحاضرات
+      <i class="fas fa-arrow-right"></i> رجوع لقائمة المحاضرات
     </button>
 
     <div class="video-header">
@@ -1309,41 +862,26 @@ a { text-decoration: none; color: white; }
         <span id="videoTitle">المحاضرة</span>
       </h2>
       <div class="video-info">
-        <span>
-          <i class="fas fa-user"></i>
-          الطالب: <strong id="studentNameVideo"></strong>
-        </span>
-        <span>
-          <i class="fas fa-clock"></i>
-          متاح حتى: <strong id="expiryDate"></strong>
-        </span>
+        <span><i class="fas fa-user"></i> الطالب: <strong id="studentNameVideo"></strong></span>
+        <span><i class="fas fa-clock"></i> متاح حتى: <strong id="expiryDate"></strong></span>
       </div>
     </div>
 
-    <div class="video-wrapper" id="videoWrapper" oncontextmenu="return false;">
-    </div>
-
+    <div class="video-wrapper" id="videoWrapper" oncontextmenu="return false;"></div>
   </div>
 </section>
 
-<!-- =========================================
-     صفحة الأدمن
-     ========================================= -->
+<!-- ADMIN PAGE -->
 <section class="page" id="adminPage">
   <div class="admin-container">
-
     <div class="page-header">
       <h1>لوحة <span>تحكم الأدمن</span></h1>
-      <p>توليد وإدارة أكواد المحاضرات للطلاب</p>
+      <p id="adminSubtitle">توليد وإدارة أكواد المحاضرات للطلاب</p>
     </div>
 
     <div class="admin-grid">
-
       <div class="admin-card">
-        <h3>
-          <i class="fas fa-plus-circle"></i>
-          توليد كود جديد
-        </h3>
+        <h3><i class="fas fa-plus-circle"></i> توليد كود جديد</h3>
 
         <div class="form-row">
           <label>📧 إيميل الطالب</label>
@@ -1365,30 +903,23 @@ a { text-decoration: none; color: white; }
         </div>
 
         <button class="generate-btn" onclick="generateCode()">
-          <i class="fas fa-magic"></i>
-          توليد الكود
+          <i class="fas fa-magic"></i> توليد الكود
         </button>
 
         <div class="generated-result" id="generatedResult">
           <p style="color: #10b981; font-weight: 700; margin-bottom: 5px;">
             ✅ تم توليد الكود بنجاح
           </p>
-          <div class="code-display" id="generatedCode" onclick="copyCode()">
-            PHYS-XXXXX
-          </div>
+          <div class="code-display" id="generatedCode" onclick="copyCode()">PHYS-XXXXX</div>
           <p style="color:#94a3b8;font-size:12px;margin-bottom:15px;">اضغط على الكود لنسخه</p>
           <button class="copy-btn" onclick="copyCode()">
-            <i class="fas fa-copy"></i>
-            نسخ الكود
+            <i class="fas fa-copy"></i> نسخ الكود
           </button>
         </div>
       </div>
 
       <div class="admin-card">
-        <h3>
-          <i class="fas fa-chart-line"></i>
-          الإحصائيات
-        </h3>
+        <h3><i class="fas fa-chart-line"></i> الإحصائيات</h3>
 
         <div class="stats-grid">
           <div class="stat-card">
@@ -1406,20 +937,17 @@ a { text-decoration: none; color: white; }
         </div>
 
         <p style="color: #94a3b8; font-size: 13px; line-height: 1.8;">
-          <i class="fas fa-info-circle" style="color: #00d4ff;"></i>
-          الأكواد تُخزَّن في Firebase وتنتهي تلقائياً بعد المدة المحددة.
-          كل كود مربوط بإيميل الطالب.
+          <i class="fas fa-info-circle" style="color: var(--main-color);"></i>
+          <span id="adminInfoText">الأكواد تُخزَّن في Firebase وتنتهي تلقائياً بعد المدة المحددة.</span>
         </p>
       </div>
-
     </div>
 
     <div class="codes-list">
       <h3>
-        <i class="fas fa-list"></i>
-        الأكواد المُولّدة
+        <i class="fas fa-list"></i> الأكواد المُولّدة
         <button onclick="loadCodes()"
-                style="margin-right: auto; background: #0f172a; color: #00d4ff; border: 1px solid #00d4ff33; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 13px;">
+                style="margin-right: auto; background: #0f172a; color: var(--main-color); border: 1px solid rgba(var(--main-color-rgb), 0.3); padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 13px;">
           <i class="fas fa-sync"></i> تحديث
         </button>
       </h3>
@@ -1448,12 +976,8 @@ a { text-decoration: none; color: white; }
         </table>
       </div>
 
-      <!-- 🔄 قسم إعادة تعيين جهاز طالب -->
       <div class="admin-card reset-device-card">
-        <h3>
-          <i class="fas fa-undo"></i>
-          إعادة تعيين جهاز طالب
-        </h3>
+        <h3><i class="fas fa-undo"></i> إعادة تعيين جهاز طالب</h3>
         <p style="color: #94a3b8; font-size: 13px; margin-bottom: 15px; line-height: 1.7;">
           استخدم الخيار ده لو الطالب غيّر جهازه ومحتاج يسجل من جديد.
         </p>
@@ -1462,34 +986,30 @@ a { text-decoration: none; color: white; }
           <input type="email" id="resetDeviceEmail" placeholder="student@gmail.com">
         </div>
         <button class="generate-btn reset-device-btn" onclick="resetStudentDevice(document.getElementById('resetDeviceEmail').value)">
-          <i class="fas fa-undo"></i>
-          مسح ربط الجهاز
+          <i class="fas fa-undo"></i> مسح ربط الجهاز
         </button>
       </div>
-
     </div>
-
   </div>
 </section>
 
-<!-- ===== FOOTER ===== -->
+<!-- FOOTER -->
 <footer class="footer">
   <h3>منصة أحمد شوقي للفيزياء</h3>
   <p>Phone : +201108776433</p>
 </footer>
 
-<!-- ===== FIREBASE SDK ===== -->
+<!-- FIREBASE SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-<!-- 🖥️ مكتبة بصمة الجهاز -->
 <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
 
 <script>
 /* =========================================
-   إعدادات Firebase
+   🔥 Firebase Configs (مشروعين)
    ========================================= */
-const firebaseConfig = {
+const ONLINE_CONFIG = {
   apiKey: "AIzaSyAasffychveLrmH0wkKSgetUsvcJ1GM8yY",
   authDomain: "ahmed-3bdd6.firebaseapp.com",
   projectId: "ahmed-3bdd6",
@@ -1499,36 +1019,46 @@ const firebaseConfig = {
   measurementId: "G-18Y1YT13XT"
 };
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+const CENTER_CONFIG = {
+  apiKey: "AIzaSyDajL8vaJdi-DQzUR8mtBOatfsZOZYGWDw",
+  authDomain: "onlain-64e10.firebaseapp.com",
+  projectId: "onlain-64e10",
+  storageBucket: "onlain-64e10.firebasestorage.app",
+  messagingSenderId: "512513517329",
+  appId: "1:512513517329:web:92a6e454672d0827c20eb0",
+  measurementId: "G-VLLKKF41J7"
+};
 
-/* =========================================
-   إيميل الأدمن
-   ========================================= */
-const ADMIN_EMAIL = "y@gmail.com";
+const onlineApp = firebase.initializeApp(ONLINE_CONFIG, "online");
+const centerApp = firebase.initializeApp(CENTER_CONFIG, "center");
 
-/* =========================================
-   🔐 روابط الفيديو المشفرة
-   ========================================= */
-const encryptedVideos = {
-  'الفصل الثالث - محاضرة 4': 'aHR0cHM6Ly9kLnRvcDR0b3AuaW8vbV8zOTEwamo3bWExLm1wNA==',
+const onlineAuth = onlineApp.auth();
+const onlineDb   = onlineApp.firestore();
+
+const centerAuth = centerApp.auth();
+const centerDb   = centerApp.firestore();
+
+/* ===== Admin Emails ===== */
+const ONLINE_ADMIN = "y@gmail.com";
+const CENTER_ADMIN = "y@gmail.com";
+
+/* ===== Videos ===== */
+const ONLINE_VIDEOS = {
+  'الفصل الثالث - محاضرة 4': 'aHR0cHM6Ly9lLnRvcDR0b3AuaW8vbV8zOTEyZmowNjkxLm1wNA==',
+  'الفصل الرابع - محاضرة 1': 'aHR0cHM6Ly9kLnRvcDR0b3AuaW8vbV8zOTEwamo3bWExLm1wNA==',
+  'مراجعة نهائية شاملة': 'aHR0cHM6Ly9kLnRvcDR0b3AuaW8vbV8zOTEwamo3bWExLm1wNA=='
+};
+
+const CENTER_VIDEOS = {
+  'الفصل الثالث - محاضرة 4': 'aHR0cHM6Ly9lLnRvcDR0b3AuaW8vbV8zOTEyZmowNjkxLm1wNA==',
   'الفصل الرابع - محاضرة 1': 'aHR0cHM6Ly9kLnRvcDR0b3AuaW8vbV8zOTEwamo3bWExLm1wNA==',
   'مراجعة نهائية شاملة': 'aHR0cHM6Ly9kLnRvcDR0b3AuaW8vbV8zOTEwamo3bWExLm1wNA=='
 };
 
 function decodeUrl(encoded) {
-  try {
-    return atob(encoded);
-  } catch (e) {
-    console.error('Decode error');
-    return '';
-  }
+  try { return atob(encoded); } catch (e) { return ''; }
 }
 
-/* =========================================
-   ✅ قائمة المحاضرات
-   ========================================= */
 const lecturesList = [
   'الفصل الثالث - محاضرة 4',
   'الفصل الرابع - محاضرة 1',
@@ -1536,45 +1066,41 @@ const lecturesList = [
 ];
 
 /* =========================================
-   🖥️ نظام بصمة الجهاز
+   🎯 المتغيرات النشطة
    ========================================= */
-let deviceId = null;
+let activePlatform = null;
+let activeAuth = null;
+let activeDb = null;
+let activeAdminEmail = null;
+let activeVideos = null;
+let currentUser = null;
 
+/* ===== Device Fingerprint ===== */
+let deviceId = null;
 async function getDeviceId() {
   if (deviceId) return deviceId;
-
   try {
     const fp = await FingerprintJS.load();
     const result = await fp.get();
     deviceId = result.visitorId;
-    console.log('🖥️ Device ID:', deviceId);
     return deviceId;
   } catch (error) {
-    console.error('Error getting device ID:', error);
-    // احتياطي: استخدم بيانات المتصفح
     deviceId = 'fallback_' + btoa(
-      navigator.userAgent +
-      screen.width +
-      screen.height +
-      navigator.language +
-      navigator.platform
+      navigator.userAgent + screen.width + screen.height +
+      navigator.language + navigator.platform
     ).replace(/[^a-zA-Z0-9]/g, '').substring(0, 25);
     return deviceId;
   }
 }
 
-async function checkDeviceBinding(userEmail, currentDeviceId) {
+async function checkDeviceBinding(db, userEmail, currentDeviceId, adminEmail) {
   try {
-    // تجاهل الأدمن
-    if (userEmail === ADMIN_EMAIL) {
-      return { allowed: true };
-    }
+    if (userEmail === adminEmail) return { allowed: true };
 
     const userDeviceRef = db.collection('userDevices').doc(userEmail);
     const doc = await userDeviceRef.get();
 
     if (!doc.exists) {
-      // ✅ أول مرة - اربط الجهاز
       await userDeviceRef.set({
         email: userEmail,
         deviceId: currentDeviceId,
@@ -1585,51 +1111,122 @@ async function checkDeviceBinding(userEmail, currentDeviceId) {
         lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
         lastLoginISO: new Date().toISOString()
       });
-
       return { allowed: true, isNew: true };
     }
 
     const data = doc.data();
-
     if (data.deviceId === currentDeviceId) {
-      // ✅ نفس الجهاز
       await userDeviceRef.update({
         lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
         lastLoginISO: new Date().toISOString()
       });
-
       return { allowed: true };
     }
 
-    // ❌ جهاز مختلف
     return {
       allowed: false,
       message: '⚠️ هذا الحساب مرتبط بجهاز آخر!\n\nالحساب مربوط بجهاز واحد فقط لأسباب أمنية.\nتواصل مع المدرس لو عندك مشكلة.'
     };
-
   } catch (error) {
     console.error('Error checking device binding:', error);
     return { allowed: true };
   }
 }
 
-async function resetStudentDevice(email) {
-  if (!email) {
-    alert('⚠️ اكتب إيميل الطالب');
-    return;
+/* =========================================
+   🎯 اختيار المنصة
+   ========================================= */
+function choosePlatform(platform) {
+  activatePlatform(platform);
+  showPage('authPage');
+  hideAuthMessages();
+  switchAuthTab('login');
+}
+
+function changePlatform() {
+  if (onlineAuth.currentUser) onlineAuth.signOut().catch(()=>{});
+  if (centerAuth.currentUser) centerAuth.signOut().catch(()=>{});
+
+  activePlatform = null;
+  activeAuth = null;
+  activeDb = null;
+  activeAdminEmail = null;
+  activeVideos = null;
+  currentUser = null;
+
+  document.getElementById('platformBadge').style.display = 'none';
+  document.getElementById('userInfo').style.display = 'none';
+  document.getElementById('adminInfo').style.display = 'none';
+  document.getElementById('userAvatar').style.display = 'none';
+
+  document.getElementById('userName').value = '';
+  document.getElementById('userEmail').value = '';
+  document.getElementById('userPassword').value = '';
+
+  showPage('platformPage');
+}
+
+/* ===== تفعيل المنصة ===== */
+function activatePlatform(platform) {
+  activePlatform = platform;
+
+  const tabRegister = document.getElementById('tabRegister');
+  const googleDivider = document.getElementById('googleDivider');
+  const googleBtn = document.getElementById('googleBtn');
+
+  if (platform === 'online') {
+    activeAuth = onlineAuth;
+    activeDb = onlineDb;
+    activeAdminEmail = ONLINE_ADMIN;
+    activeVideos = ONLINE_VIDEOS;
+    document.body.classList.remove('theme-center');
+    document.body.classList.add('theme-online');
+    setBadge('الأونلاين');
+    document.getElementById('authPlatformBadge').innerHTML =
+      '<i class="fas fa-globe"></i><span>منصة الأونلاين</span>';
+    document.getElementById('authSubtitle').textContent =
+      'منصة تعليمية متكاملة للكورس الأونلاين.';
+
+    // ✅ إظهار تبويب "حساب جديد" + زرار Google في الأونلاين
+    tabRegister.style.display = 'flex';
+    googleDivider.style.display = 'flex';
+    googleBtn.style.display = 'flex';
+
+  } else {
+    activeAuth = centerAuth;
+    activeDb = centerDb;
+    activeAdminEmail = CENTER_ADMIN;
+    activeVideos = CENTER_VIDEOS;
+    document.body.classList.remove('theme-online');
+    document.body.classList.add('theme-center');
+    setBadge('السنتر');
+    document.getElementById('authPlatformBadge').innerHTML =
+      '<i class="fas fa-building"></i><span>منصة السنتر</span>';
+    document.getElementById('authSubtitle').textContent =
+      'منصة تعليمية مخصصة لطلاب السنتر.';
+
+    // ❌ إخفاء تبويب "حساب جديد" + زرار Google في السنتر
+    tabRegister.style.display = 'none';
+    googleDivider.style.display = 'none';
+    googleBtn.style.display = 'none';
+    switchAuthTab('login');
   }
 
-  email = email.trim().toLowerCase();
+  document.getElementById('lecturesSubtitle').textContent =
+    platform === 'online' ? 'محاضرات منصة الأونلاين' : 'محاضرات منصة السنتر';
+  document.getElementById('adminSubtitle').textContent =
+    platform === 'online' ? 'إدارة أكواد منصة الأونلاين' : 'إدارة أكواد منصة السنتر';
+  document.getElementById('adminInfoText').textContent =
+    platform === 'online'
+      ? 'الأكواد تُخزَّن في Firebase الأونلاين وتنتهي تلقائياً بعد المدة المحددة.'
+      : 'الأكواد تُخزَّن في Firebase السنتر وتنتهي تلقائياً بعد المدة المحددة.';
+}
 
-  if (!confirm(`مسح ربط الجهاز للطالب:\n${email}\n\nالطالب هيقدر يسجل من جهاز جديد؟`)) return;
-
-  try {
-    await db.collection('userDevices').doc(email).delete();
-    alert('✅ تم مسح ربط الجهاز بنجاح!\nالطالب يقدر يسجل من جهاز جديد.');
-    document.getElementById('resetDeviceEmail').value = '';
-  } catch (error) {
-    alert('❌ حدث خطأ: ' + error.message);
-  }
+function setBadge(text) {
+  const badge = document.getElementById('platformBadge');
+  badge.textContent = text;
+  badge.className = 'logo-badge';
+  badge.style.display = 'inline-block';
 }
 
 /* =========================================
@@ -1637,14 +1234,15 @@ async function resetStudentDevice(email) {
    ========================================= */
 let currentAuthMode = 'login';
 let selectedLecture = null;
-let currentUser = null;
 
-/* =========================================
-   التبديل بين التبويبات
-   ========================================= */
+/* ===== Tabs ===== */
 function switchAuthTab(mode) {
-  currentAuthMode = mode;
+  // 🔒 حماية: لو إحنا في السنتر، ممنوع نروح لوضع "حساب جديد"
+  if (mode === 'register' && activePlatform === 'center') {
+    mode = 'login';
+  }
 
+  currentAuthMode = mode;
   const tabLogin = document.getElementById('tabLogin');
   const tabRegister = document.getElementById('tabRegister');
   const authTitle = document.getElementById('authTitle');
@@ -1674,50 +1272,39 @@ function switchAuthTab(mode) {
   }
 }
 
-/* =========================================
-   الدالة الرئيسية
-   ========================================= */
 function handleAuth() {
-  if (currentAuthMode === 'login') {
-    loginWithEmail();
-  } else {
-    registerWithEmail();
-  }
+  if (currentAuthMode === 'login') loginWithEmail();
+  else registerWithEmail();
 }
 
 /* =========================================
-   تسجيل حساب جديد
+   📝 تسجيل حساب جديد (الأونلاين فقط)
    ========================================= */
 async function registerWithEmail() {
+  if (activePlatform === 'center') {
+    showAuthError('⚠️ التسجيل متاح فقط لمنصة الأونلاين.\nتواصل مع المدرس لإنشاء حساب السنتر.');
+    return;
+  }
+
   const name = document.getElementById('userName').value.trim();
   const email = document.getElementById('userEmail').value.trim();
   const password = document.getElementById('userPassword').value;
 
   hideAuthMessages();
 
-  if (!name || !email || !password) {
-    showAuthError('من فضلك املأ جميع الحقول');
-    return;
-  }
+  if (!name || !email || !password) { showAuthError('من فضلك املأ جميع الحقول'); return; }
+  if (name.length < 3) { showAuthError('الاسم يجب أن يكون 3 أحرف على الأقل'); return; }
+  if (password.length < 6) { showAuthError('كلمة المرور يجب أن تكون 6 أحرف على الأقل'); return; }
 
-  if (name.length < 3) {
-    showAuthError('الاسم يجب أن يكون 3 أحرف على الأقل');
-    return;
-  }
-
-  if (password.length < 6) {
-    showAuthError('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
-    return;
-  }
+  if (!activeAuth) { showAuthError('اختر المنصة أولاً'); return; }
 
   setAuthLoading(true, 'جاري إنشاء الحساب...');
 
   try {
-    const result = await auth.createUserWithEmailAndPassword(email, password);
+    const result = await activeAuth.createUserWithEmailAndPassword(email, password);
     await result.user.updateProfile({ displayName: name });
 
-    showAuthSuccess(`✅ تم إنشاء حسابك بنجاح يا ${name}!`);
-
+    showAuthSuccess(`✅ تم إنشاء حسابك بنجاح يا ${name} في منصة الأونلاين!`);
   } catch (error) {
     showAuthError(getAuthErrorMessage(error.code));
   } finally {
@@ -1726,23 +1313,21 @@ async function registerWithEmail() {
 }
 
 /* =========================================
-   تسجيل الدخول بالإيميل
+   🔐 تسجيل الدخول بالإيميل
    ========================================= */
 async function loginWithEmail() {
   const email = document.getElementById('userEmail').value.trim();
   const password = document.getElementById('userPassword').value;
 
   hideAuthMessages();
+  if (!email || !password) { showAuthError('من فضلك اكتب البريد وكلمة المرور'); return; }
 
-  if (!email || !password) {
-    showAuthError('من فضلك اكتب البريد وكلمة المرور');
-    return;
-  }
+  if (!activeAuth) { showAuthError('اختر المنصة أولاً'); return; }
 
   setAuthLoading(true, 'جاري الدخول...');
 
   try {
-    await auth.signInWithEmailAndPassword(email, password);
+    await activeAuth.signInWithEmailAndPassword(email, password);
     showAuthSuccess('✅ تم تسجيل الدخول بنجاح!');
   } catch (error) {
     showAuthError(getAuthErrorMessage(error.code));
@@ -1752,16 +1337,23 @@ async function loginWithEmail() {
 }
 
 /* =========================================
-   تسجيل الدخول بحساب Google
+   📱 تسجيل الدخول بـ Google (الأونلاين فقط)
    ========================================= */
 async function loginWithGoogle() {
-  const provider = new firebase.auth.GoogleAuthProvider();
+  // 🔒 حماية: ممنوع Google في السنتر
+  if (activePlatform === 'center') {
+    showAuthError('⚠️ الدخول بحساب Google غير متاح في منصة السنتر.\nمن فضلك سجل دخولك بالإيميل وكلمة المرور.');
+    return;
+  }
 
+  if (!activeAuth) { showAuthError('اختر المنصة أولاً'); return; }
+
+  const provider = new firebase.auth.GoogleAuthProvider();
   hideAuthMessages();
   setAuthLoading(true, 'جاري فتح Google...');
 
   try {
-    await auth.signInWithPopup(provider);
+    await activeAuth.signInWithPopup(provider);
     showAuthSuccess('✅ تم تسجيل الدخول بحساب Google!');
   } catch (error) {
     if (error.code !== 'auth/popup-closed-by-user') {
@@ -1773,18 +1365,15 @@ async function loginWithGoogle() {
 }
 
 /* =========================================
-   استعادة كلمة المرور
+   🧠 استعادة كلمة المرور
    ========================================= */
 async function resetPassword() {
   const email = document.getElementById('userEmail').value.trim();
-
-  if (!email) {
-    showAuthError('اكتب بريدك أولاً ثم اضغط "نسيت كلمة المرور"');
-    return;
-  }
+  if (!email) { showAuthError('اكتب بريدك أولاً ثم اضغط "نسيت كلمة المرور"'); return; }
+  if (!activeAuth) { showAuthError('اختر المنصة أولاً'); return; }
 
   try {
-    await auth.sendPasswordResetEmail(email);
+    await activeAuth.sendPasswordResetEmail(email);
     showAuthSuccess(`✅ تم إرسال رابط استعادة كلمة المرور إلى ${email}`);
   } catch (error) {
     showAuthError(getAuthErrorMessage(error.code));
@@ -1792,12 +1381,54 @@ async function resetPassword() {
 }
 
 /* =========================================
-   تسجيل الخروج
+   ✅ معالجة المستخدم بعد تسجيل الدخول
+   ========================================= */
+async function handleUserLoggedIn(user) {
+  currentUser = user;
+  const displayName = user.displayName || user.email.split('@')[0];
+  const userEmail = user.email.toLowerCase();
+
+  const currentDeviceId = await getDeviceId();
+  const deviceCheck = await checkDeviceBinding(activeDb, userEmail, currentDeviceId, activeAdminEmail);
+
+  if (!deviceCheck.allowed) {
+    await activeAuth.signOut();
+    showAuthError(deviceCheck.message);
+    showPage('authPage');
+    return;
+  }
+
+  document.getElementById('userInfo').style.display = 'flex';
+  document.getElementById('studentName').textContent = displayName;
+
+  if (user.photoURL) {
+    const avatar = document.getElementById('userAvatar');
+    avatar.src = user.photoURL;
+    avatar.style.display = 'block';
+  }
+
+  if (userEmail === activeAdminEmail) {
+    document.getElementById('userInfo').style.display = 'none';
+    document.getElementById('adminInfo').style.display = 'flex';
+    showPage('adminPage');
+    loadCodes();
+    return;
+  }
+
+  showPage('lecturesPage');
+  await updateLectureBadges();
+}
+
+/* =========================================
+   🚪 تسجيل الخروج
    ========================================= */
 async function logout() {
   if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
     try {
-      await auth.signOut();
+      if (activeAuth) await activeAuth.signOut();
+      try { await onlineAuth.signOut(); } catch(e) {}
+      try { await centerAuth.signOut(); } catch(e) {}
+
       localStorage.removeItem('activeCode');
       localStorage.removeItem('studentName');
       location.reload();
@@ -1808,91 +1439,38 @@ async function logout() {
 }
 
 /* =========================================
-   مراقبة حالة تسجيل الدخول (مع التحقق من الجهاز)
-   ========================================= */
-auth.onAuthStateChanged(async function(user) {
-  currentUser = user;
-
-  if (user) {
-    const displayName = user.displayName || user.email.split('@')[0];
-    const userEmail = user.email.toLowerCase();
-
-    // 🖥️ التحقق من بصمة الجهاز
-    const currentDeviceId = await getDeviceId();
-    const deviceCheck = await checkDeviceBinding(userEmail, currentDeviceId);
-
-    if (!deviceCheck.allowed) {
-      // ❌ الجهاز مش مصرح
-      await auth.signOut();
-      showAuthError(deviceCheck.message);
-      showPage('authPage');
-      return;
-    }
-
-    // ✅ الجهاز مصرح - كمّل عادي
-    document.getElementById('userInfo').style.display = 'flex';
-    document.getElementById('studentName').textContent = displayName;
-
-    if (user.photoURL) {
-      const avatar = document.getElementById('userAvatar');
-      avatar.src = user.photoURL;
-      avatar.style.display = 'block';
-    }
-
-    if (userEmail === ADMIN_EMAIL) {
-      document.getElementById('userInfo').style.display = 'none';
-      document.getElementById('adminInfo').style.display = 'flex';
-      showPage('adminPage');
-      loadCodes();
-      return;
-    }
-
-    showPage('lecturesPage');
-    await updateLectureBadges();
-
-  } else {
-    document.getElementById('userInfo').style.display = 'none';
-    document.getElementById('adminInfo').style.display = 'none';
-    document.getElementById('userAvatar').style.display = 'none';
-    showPage('authPage');
-  }
-});
-
-/* =========================================
    التنقل بين الصفحات
    ========================================= */
 function showPage(pageId) {
+  // 🎯 حماية: ممنوع صفحة الكود في السنتر
+  if (pageId === 'codePage' && activePlatform === 'center') {
+    pageId = 'lecturesPage';
+  }
+
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(pageId).classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 /* =========================================
-   التحقق من صلاحية الطالب للمحاضرة
+   فحص صلاحية الطالب (للأونلاين فقط)
    ========================================= */
 async function checkStudentAccess(lectureName) {
   try {
     const userEmail = currentUser.email.toLowerCase();
-
-    const snapshot = await db.collection('accessCodes')
+    const snapshot = await activeDb.collection('accessCodes')
       .where('studentEmail', '==', userEmail)
       .where('lectureName', '==', lectureName)
       .get();
 
-    if (snapshot.empty) {
-      return null;
-    }
+    if (snapshot.empty) return null;
 
     const now = new Date();
     for (const doc of snapshot.docs) {
       const data = doc.data();
       const expiryDate = new Date(data.expiresAt);
-
-      if (now <= expiryDate) {
-        return { ...data, code: doc.id };
-      }
+      if (now <= expiryDate) return { ...data, code: doc.id };
     }
-
     return null;
   } catch (error) {
     console.error('Error checking access:', error);
@@ -1900,28 +1478,34 @@ async function checkStudentAccess(lectureName) {
   }
 }
 
-/* =========================================
-   تحديث شارات المحاضرات
-   ========================================= */
 async function updateLectureBadges() {
-  if (!currentUser || currentUser.email.toLowerCase() === ADMIN_EMAIL) return;
+  if (!currentUser || currentUser.email.toLowerCase() === activeAdminEmail) return;
 
+  // 🎯 منصة السنتر: كل المحاضرات مفتوحة على طول
+  if (activePlatform === 'center') {
+    lecturesList.forEach((lecture, index) => {
+      const badge = document.getElementById('badge-' + index);
+      if (!badge) return;
+      badge.className = 'lecture-badge unlocked';
+      badge.innerHTML = '<i class="fas fa-play-circle"></i> اضغط للمشاهدة';
+    });
+    return;
+  }
+
+  // 🔵 منصة الأونلاين: النظام العادي
   const userEmail = currentUser.email.toLowerCase();
   const now = new Date();
 
   try {
-    const snapshot = await db.collection('accessCodes')
+    const snapshot = await activeDb.collection('accessCodes')
       .where('studentEmail', '==', userEmail)
       .get();
 
     const unlockedLectures = new Set();
-
     snapshot.forEach(doc => {
       const data = doc.data();
       const expDate = new Date(data.expiresAt);
-      if (now <= expDate) {
-        unlockedLectures.add(data.lectureName);
-      }
+      if (now <= expDate) unlockedLectures.add(data.lectureName);
     });
 
     lecturesList.forEach((lecture, index) => {
@@ -1936,25 +1520,34 @@ async function updateLectureBadges() {
         badge.innerHTML = '<i class="fas fa-lock"></i> يحتاج كود';
       }
     });
-
   } catch (error) {
     console.error('Error updating badges:', error);
   }
 }
 
-/* =========================================
-   اختيار محاضرة
-   ========================================= */
 async function selectLecture(lectureName) {
   selectedLecture = lectureName;
 
+  // 🎯 منصة السنتر: مفيش كود خالص — الفيديو يفتح على طول
+  if (activePlatform === 'center') {
+    const fakeData = {
+      lectureName: lectureName,
+      studentName: currentUser.displayName || currentUser.email.split('@')[0],
+      studentEmail: currentUser.email,
+      expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+      code: 'CENTER-OPEN'
+    };
+    showPage('videoPage');
+    setTimeout(() => openVideo(fakeData), 200);
+    return;
+  }
+
+  // 🔵 منصة الأونلاين: النظام القديم بالكود
   const existingAccess = await checkStudentAccess(lectureName);
 
   if (existingAccess) {
     showPage('videoPage');
-    setTimeout(() => {
-      openVideo(existingAccess);
-    }, 300);
+    setTimeout(() => openVideo(existingAccess), 300);
     return;
   }
 
@@ -1964,26 +1557,16 @@ async function selectLecture(lectureName) {
   hideCodeMessages();
 
   showPage('codePage');
-
   setTimeout(() => document.getElementById('accessCode').focus(), 400);
 }
 
-/* =========================================
-   رجوع لقائمة المحاضرات
-   ========================================= */
 async function goBackToLectures() {
   const wrapper = document.getElementById('videoWrapper');
-  if (wrapper) {
-    wrapper.innerHTML = '';
-  }
-
+  if (wrapper) wrapper.innerHTML = '';
   showPage('lecturesPage');
   await updateLectureBadges();
 }
 
-/* =========================================
-   التحقق من كود الطالب
-   ========================================= */
 async function verifyAccessCode() {
   const input = document.getElementById('accessCode');
   const code = input.value.trim().toUpperCase();
@@ -2002,7 +1585,7 @@ async function verifyAccessCode() {
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحقق...';
 
   try {
-    const docRef = db.collection('accessCodes').doc(code);
+    const docRef = activeDb.collection('accessCodes').doc(code);
     const doc = await docRef.get();
 
     if (!doc.exists) {
@@ -2027,26 +1610,25 @@ async function verifyAccessCode() {
       return;
     }
 
-    const userEmail = currentUser.email.toLowerCase();
-    if (data.studentEmail !== userEmail) {
-      showCodeError('⚠️ هذا الكود ليس مخصصاً لك');
-      input.classList.add('error');
-      return;
+    // 🔒 في منصة الأونلاين: الكود لازم يكون مخصص للطالب ده
+    if (activePlatform === 'online') {
+      const userEmail = currentUser.email.toLowerCase();
+      if (data.studentEmail !== userEmail) {
+        showCodeError('⚠️ هذا الكود ليس مخصصاً لك');
+        input.classList.add('error');
+        return;
+      }
     }
 
     await docRef.update({
-      used: true,
-      unlocked: true,
+      used: true, unlocked: true,
       usedAt: firebase.firestore.FieldValue.serverTimestamp(),
       usedAtISO: now.toISOString(),
       usedByEmail: currentUser.email
     });
 
     showCodeSuccess(`✅ أهلاً ${data.studentName}! جاري فتح المحاضرة...`);
-
-    setTimeout(() => {
-      openVideo(data);
-    }, 1000);
+    setTimeout(() => openVideo(data), 1000);
 
   } catch (error) {
     console.error(error);
@@ -2057,28 +1639,26 @@ async function verifyAccessCode() {
   }
 }
 
-/* =========================================
-   🔐 فتح الفيديو مع الحماية
-   ========================================= */
 function openVideo(data) {
   showPage('videoPage');
-
   document.getElementById('videoTitle').textContent = data.lectureName;
   document.getElementById('studentNameVideo').textContent = data.studentName;
 
-  const expiryDate = new Date(data.expiresAt);
-  const options = { year: 'numeric', month: 'long', day: 'numeric' };
-  document.getElementById('expiryDate').textContent =
-    expiryDate.toLocaleDateString('ar-EG', options);
-
-  const encryptedUrl = encryptedVideos[data.lectureName];
-  if (!encryptedUrl) {
-    alert('⚠️ الفيديو غير متاح حالياً');
-    return;
+  // 🎯 في السنتر: نخفي تاريخ الانتهاء
+  const expirySpan = document.getElementById('expiryDate').parentElement;
+  if (activePlatform === 'center') {
+    expirySpan.style.display = 'none';
+  } else {
+    expirySpan.style.display = 'flex';
+    const expiryDate = new Date(data.expiresAt);
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('expiryDate').textContent = expiryDate.toLocaleDateString('ar-EG', options);
   }
 
-  const videoUrl = decodeUrl(encryptedUrl);
+  const encryptedUrl = activeVideos[data.lectureName];
+  if (!encryptedUrl) { alert('⚠️ الفيديو غير متاح حالياً'); return; }
 
+  const videoUrl = decodeUrl(encryptedUrl);
   const wrapper = document.getElementById('videoWrapper');
   wrapper.innerHTML = '';
 
@@ -2096,21 +1676,15 @@ function openVideo(data) {
 
   videoEl.appendChild(sourceEl);
   wrapper.appendChild(videoEl);
-
   videoEl.load();
-
   videoEl.addEventListener('contextmenu', e => e.preventDefault());
 }
 
-/* =========================================
-   توليد كود جديد
-   ========================================= */
+/* ===== توليد الأكواد ===== */
 function generateRandomCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = 'PHYS-';
-  for (let i = 0; i < 5; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
+  for (let i = 0; i < 5; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
   return code;
 }
 
@@ -2119,20 +1693,12 @@ async function generateCode() {
   const lectureName = document.getElementById('lectureSelect').value;
   const validityDays = parseInt(document.getElementById('validityDays').value);
 
-  if (!studentEmail) {
-    alert('⚠️ اكتب إيميل الطالب');
-    return;
-  }
+  if (!studentEmail) { alert('⚠️ اكتب إيميل الطالب'); return; }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(studentEmail)) {
-    alert('⚠️ صيغة الإيميل غير صحيحة');
-    return;
-  }
-
+  if (!emailRegex.test(studentEmail)) { alert('⚠️ صيغة الإيميل غير صحيحة'); return; }
   if (!validityDays || validityDays < 1 || validityDays > 365) {
-    alert('⚠️ مدة الصلاحية من 1 لـ 365 يوم');
-    return;
+    alert('⚠️ مدة الصلاحية من 1 لـ 365 يوم'); return;
   }
 
   const btn = event.target;
@@ -2145,7 +1711,7 @@ async function generateCode() {
     let attempts = 0;
 
     while (exists && attempts < 10) {
-      const doc = await db.collection('accessCodes').doc(code).get();
+      const doc = await activeDb.collection('accessCodes').doc(code).get();
       if (!doc.exists) exists = false;
       else { code = generateRandomCode(); attempts++; }
     }
@@ -2153,7 +1719,7 @@ async function generateCode() {
     const now = new Date();
     const expiryDate = new Date(now.getTime() + validityDays * 24 * 60 * 60 * 1000);
 
-    await db.collection('accessCodes').doc(code).set({
+    await activeDb.collection('accessCodes').doc(code).set({
       code: code,
       studentEmail: studentEmail,
       studentName: studentEmail.split('@')[0],
@@ -2162,18 +1728,14 @@ async function generateCode() {
       createdAtISO: now.toISOString(),
       expiresAt: expiryDate.toISOString(),
       validityDays: validityDays,
-      used: false,
-      unlocked: false,
-      usedAt: null,
-      usedByEmail: null
+      used: false, unlocked: false,
+      usedAt: null, usedByEmail: null
     });
 
     document.getElementById('generatedCode').textContent = code;
     document.getElementById('generatedResult').classList.add('show');
     document.getElementById('studentEmailInput').value = '';
-
     loadCodes();
-
   } catch (error) {
     alert('❌ حدث خطأ: ' + error.message);
   } finally {
@@ -2182,9 +1744,6 @@ async function generateCode() {
   }
 }
 
-/* =========================================
-   نسخ الكود
-   ========================================= */
 function copyCode() {
   const code = document.getElementById('generatedCode').textContent;
   navigator.clipboard.writeText(code).then(() => {
@@ -2195,20 +1754,16 @@ function copyCode() {
   });
 }
 
-/* =========================================
-   تحميل قائمة الأكواد
-   ========================================= */
 async function loadCodes() {
   const tbody = document.getElementById('codesTableBody');
-
   tbody.innerHTML = `
     <tr><td colspan="7" style="text-align:center; padding:30px;">
-      <i class="fas fa-spinner fa-spin" style="color:#00d4ff; font-size:24px;"></i>
+      <i class="fas fa-spinner fa-spin" style="color:var(--main-color); font-size:24px;"></i>
     </td></tr>
   `;
 
   try {
-    const snapshot = await db.collection('accessCodes')
+    const snapshot = await activeDb.collection('accessCodes')
       .orderBy('createdAtISO', 'desc').limit(100).get();
 
     const codes = [];
@@ -2269,7 +1824,6 @@ async function loadCodes() {
         </tr>
       `;
     }).join('');
-
   } catch (error) {
     console.error(error);
     tbody.innerHTML = `
@@ -2281,56 +1835,57 @@ async function loadCodes() {
   }
 }
 
-/* =========================================
-   حذف كود
-   ========================================= */
 async function deleteCode(code) {
   if (!confirm(`حذف الكود ${code}؟`)) return;
   try {
-    await db.collection('accessCodes').doc(code).delete();
+    await activeDb.collection('accessCodes').doc(code).delete();
     loadCodes();
+  } catch (error) { alert('حدث خطأ'); }
+}
+
+async function resetStudentDevice(email) {
+  if (!email) { alert('⚠️ اكتب إيميل الطالب'); return; }
+  email = email.trim().toLowerCase();
+  if (!confirm(`مسح ربط الجهاز للطالب:\n${email}\n\nالطالب هيقدر يسجل من جهاز جديد؟`)) return;
+
+  try {
+    await activeDb.collection('userDevices').doc(email).delete();
+    alert('✅ تم مسح ربط الجهاز بنجاح!\nالطالب يقدر يسجل من جهاز جديد.');
+    document.getElementById('resetDeviceEmail').value = '';
   } catch (error) {
-    alert('حدث خطأ');
+    alert('❌ حدث خطأ: ' + error.message);
   }
 }
 
-/* =========================================
-   دوال مساعدة
-   ========================================= */
+/* ===== Helpers ===== */
 function showAuthError(message) {
   document.getElementById('authErrorText').textContent = message;
   document.getElementById('authError').classList.add('show');
   document.getElementById('authSuccess').classList.remove('show');
 }
-
 function showAuthSuccess(message) {
   document.getElementById('authSuccessText').textContent = message;
   document.getElementById('authSuccess').classList.add('show');
   document.getElementById('authError').classList.remove('show');
 }
-
 function hideAuthMessages() {
   document.getElementById('authError').classList.remove('show');
   document.getElementById('authSuccess').classList.remove('show');
 }
-
 function showCodeError(message) {
   document.getElementById('codeErrorText').textContent = message;
   document.getElementById('codeError').classList.add('show');
   document.getElementById('codeSuccess').classList.remove('show');
 }
-
 function showCodeSuccess(message) {
   document.getElementById('codeSuccessText').textContent = message;
   document.getElementById('codeSuccess').classList.add('show');
   document.getElementById('codeError').classList.remove('show');
 }
-
 function hideCodeMessages() {
   document.getElementById('codeError').classList.remove('show');
   document.getElementById('codeSuccess').classList.remove('show');
 }
-
 function setAuthLoading(loading, text) {
   const btn = document.getElementById('authBtn');
   const btnText = document.getElementById('authBtnText');
@@ -2346,13 +1901,12 @@ function setAuthLoading(loading, text) {
     btnText.textContent = currentAuthMode === 'login' ? 'دخول' : 'إنشاء حساب';
   }
 }
-
 function getAuthErrorMessage(code) {
   const messages = {
     'auth/email-already-in-use': 'هذا البريد مستخدم بالفعل، جرب تسجيل الدخول',
     'auth/invalid-email': 'البريد الإلكتروني غير صحيح',
     'auth/weak-password': 'كلمة المرور ضعيفة، استخدم 6 أحرف على الأقل',
-    'auth/user-not-found': 'لا يوجد حساب بهذا البريد',
+    'auth/user-not-found': 'لا يوجد حساب بهذا البريد في هذه المنصة',
     'auth/wrong-password': 'كلمة المرور غير صحيحة',
     'auth/invalid-credential': 'البريد أو كلمة المرور غير صحيحة',
     'auth/too-many-requests': 'محاولات كثيرة، جرب لاحقاً',
@@ -2367,57 +1921,39 @@ function getAuthErrorMessage(code) {
 }
 
 /* =========================================
-   🛡️ حماية F12 و DevTools
+   🔄 متابعة حالة الدخول
    ========================================= */
+onlineAuth.onAuthStateChanged(async (user) => {
+  if (user && activePlatform === 'online') {
+    await handleUserLoggedIn(user);
+  }
+});
+
+centerAuth.onAuthStateChanged(async (user) => {
+  if (user && activePlatform === 'center') {
+    await handleUserLoggedIn(user);
+  }
+});
+
+/* ===== حماية DevTools ===== */
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'F12' || e.keyCode === 123) {
-    e.preventDefault();
-    return false;
-  }
-  if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.keyCode === 73)) {
-    e.preventDefault();
-    return false;
-  }
-  if (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j' || e.keyCode === 74)) {
-    e.preventDefault();
-    return false;
-  }
-  if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c' || e.keyCode === 67)) {
-    e.preventDefault();
-    return false;
-  }
-  if (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.keyCode === 85)) {
-    e.preventDefault();
-    return false;
-  }
-  if (e.ctrlKey && (e.key === 'S' || e.key === 's' || e.keyCode === 83)) {
-    e.preventDefault();
-    return false;
-  }
-  if (e.ctrlKey && (e.key === 'P' || e.key === 'p' || e.keyCode === 80)) {
-    e.preventDefault();
-    return false;
-  }
+  if (e.key === 'F12' || e.keyCode === 123) { e.preventDefault(); return false; }
+  if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.keyCode === 73)) { e.preventDefault(); return false; }
+  if (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j' || e.keyCode === 74)) { e.preventDefault(); return false; }
+  if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c' || e.keyCode === 67)) { e.preventDefault(); return false; }
+  if (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.keyCode === 85)) { e.preventDefault(); return false; }
+  if (e.ctrlKey && (e.key === 'S' || e.key === 's' || e.keyCode === 83)) { e.preventDefault(); return false; }
+  if (e.ctrlKey && (e.key === 'P' || e.key === 'p' || e.keyCode === 80)) { e.preventDefault(); return false; }
 });
-
-document.addEventListener('contextmenu', function(e) {
-  e.preventDefault();
-  return false;
-});
-
-document.addEventListener('dragstart', function(e) {
-  e.preventDefault();
-  return false;
-});
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('dragstart', e => e.preventDefault());
 
 (function detectDevTools() {
   const threshold = 160;
   let warningShown = false;
-
   setInterval(function() {
     const widthDiff = window.outerWidth - window.innerWidth;
     const heightDiff = window.outerHeight - window.innerHeight;
-
     if (widthDiff > threshold || heightDiff > threshold) {
       if (!warningShown) {
         warningShown = true;
@@ -2435,13 +1971,9 @@ document.addEventListener('dragstart', function(e) {
 console.log('%c⚠️ تحذير!', 'color: red; font-size: 30px; font-weight: bold;');
 console.log('%cهذه الصفحة محمية. استخدام DevTools يعرض حسابك للحظر.', 'color: red; font-size: 16px;');
 
-/* =========================================
-   Enter للتحقق
-   ========================================= */
 document.getElementById('userPassword').addEventListener('keypress', function(e) {
   if (e.key === 'Enter') handleAuth();
 });
-
 document.getElementById('accessCode').addEventListener('keypress', function(e) {
   if (e.key === 'Enter') verifyAccessCode();
 });
