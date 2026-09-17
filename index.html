@@ -438,8 +438,10 @@ body { --main-color: #00d4ff; --main-color-dark: #0099cc; --main-color-rgb: 0,21
   background: #000; border-radius: 20px; overflow: hidden;
   box-shadow: 0 25px 60px rgba(0,0,0,0.5);
   border: 1px solid #1e293b; position: relative;
+  min-height: 400px;
 }
 .video-wrapper video { width: 100%; display: block; pointer-events: auto; }
+.video-wrapper iframe { width: 100%; height: 600px; border: none; display: block; }
 .back-btn {
   background: rgba(255,255,255,0.05); color: var(--main-color);
   border: 2px solid rgba(var(--main-color-rgb), 0.2);
@@ -631,6 +633,7 @@ body { --main-color: #00d4ff; --main-color-dark: #0099cc; --main-color-rgb: 0,21
   .back-btn { width: 100%; justify-content: center; }
   .user-info span { display: none; }
   .btn-back-platform span { display: none; }
+  .video-wrapper iframe { height: 350px; }
 }
 </style>
 </head>
@@ -1062,18 +1065,42 @@ const CENTER_ADMIN = "y@gmail.com";
 /* ===== Videos ===== */
 const ONLINE_VIDEOS = {
   'الفصل الثالث - محاضرة 4': 'aHR0cHM6Ly9lLnRvcDR0b3AuaW8vbV8zOTEyZmowNjkxLm1wNA==',
-  'الفصل الرابع - محاضرة 1': 'aHR0cHM6Ly9kLnRvcDR0b3AuaW8vbV8zOTEwamo3bWExLm1wNA==',
-  'مراجعة نهائية شاملة': 'aHR0cHM6Ly9kLnRvcDR0b3AuaW8vbV8zOTEwamo3bWExLm1wNA=='
+  'الفصل الرابع - محاضرة 1': 'aHR0cHM6Ly8xZHJ2Lm1zL3YvYy81YTgxMjVlMWIyMWMxOGY1L0lRUjB5WHYyRGU3dFRLbDdRVW1MMGtJWEFmMnRXbVRyd0FVZWxMc21NUzlrY3Yw',
+  'مراجعة نهائية شاملة': 'aHR0cHM6Ly8xZHJ2Lm1zL3YvYy81YTgxMjVlMWIyMWMxOGY1L0lRUjB5WHYyRGU3dFRLbDdRVW1MMGtJWEFmMnRXbVRyd0FVZWxMc21NUzlrY3Yw'
 };
 
 const CENTER_VIDEOS = {
   'الفصل الثالث - محاضرة 4': 'aHR0cHM6Ly9lLnRvcDR0b3AuaW8vbV8zOTEyZmowNjkxLm1wNA==',
-  'الفصل الرابع - محاضرة 1': 'aHR0cHM6Ly9kLnRvcDR0b3AuaW8vbV8zOTEwamo3bWExLm1wNA==',
-  'مراجعة نهائية شاملة': 'aHR0cHM6Ly9kLnRvcDR0b3AuaW8vbV8zOTEwamo3bWExLm1wNA=='
+  'الفصل الرابع - محاضرة 1': 'aHR0cHM6Ly8xZHJ2Lm1zL3YvYy81YTgxMjVlMWIyMWMxOGY1L0lRUjB5WHYyRGU3dFRLbDdRVW1MMGtJWEFmMnRXbVRyd0FVZWxMc21NUzlrY3Yw',
+  'مراجعة نهائية شاملة': 'aHR0cHM6Ly8xZHJ2Lm1zL3YvYy81YTgxMjVlMWIyMWMxOGY1L0lRUjB5WHYyRGU3dFRLbDdRVW1MMGtJWEFmMnRXbVRyd0FVZWxMc21NUzlrY3Yw'
 };
 
 function decodeUrl(encoded) {
-  try { return atob(encoded); } catch (e) { return ''; }
+  try {
+    let url = atob(encoded);
+
+    // Google Drive → preview
+    if (url.includes('drive.google.com')) {
+      const match = url.match(/\/file\/d\/([^\/]+)/);
+      if (match && match[1]) {
+        return `https://drive.google.com/file/d/${match[1]}/preview`;
+      }
+    }
+
+    // OneDrive → نضمن إن فيه embed=1
+    if (url.includes('1drv.ms') || url.includes('onedrive.live.com')) {
+      if (!url.includes('embed=1')) {
+        const separator = url.includes('?') ? '&' : '?';
+        url = url + separator + 'embed=1';
+      }
+      return url;
+    }
+
+    return url;
+  } catch (e) {
+    console.error('Decode error:', e);
+    return '';
+  }
 }
 
 const lecturesList = [
@@ -1321,7 +1348,6 @@ async function registerWithEmail() {
 
     showAuthSuccess(`✅ تم إنشاء حسابك بنجاح يا ${name} في منصة الأونلاين!`);
 
-    // ✅ التعديل: ننقل المستخدم مباشرة بعد التسجيل
     setTimeout(async () => {
       await handleUserLoggedIn(result.user);
     }, 800);
@@ -1350,7 +1376,6 @@ async function loginWithEmail() {
     const result = await activeAuth.signInWithEmailAndPassword(email, password);
     showAuthSuccess('✅ تم تسجيل الدخول بنجاح!');
 
-    // ✅ التعديل الأهم: ننقل المستخدم مباشرة بعد الدخول
     setTimeout(async () => {
       await handleUserLoggedIn(result.user);
     }, 800);
@@ -1380,7 +1405,6 @@ async function loginWithGoogle() {
     const result = await activeAuth.signInWithPopup(provider);
     showAuthSuccess('✅ تم تسجيل الدخول بحساب Google!');
 
-    // ✅ التعديل: ننقل المستخدم مباشرة بعد الدخول بـ Google
     setTimeout(async () => {
       await handleUserLoggedIn(result.user);
     }, 800);
@@ -1429,7 +1453,6 @@ async function handleUserLoggedIn(user) {
     return;
   }
 
-  // إخفاء رسائل الـ auth
   hideAuthMessages();
 
   document.getElementById('userInfo').style.display = 'flex';
@@ -1441,7 +1464,6 @@ async function handleUserLoggedIn(user) {
     avatar.style.display = 'block';
   }
 
-  // ✅ لو الأدمن
   if (userEmail === activeAdminEmail) {
     document.getElementById('userInfo').style.display = 'none';
     document.getElementById('adminInfo').style.display = 'flex';
@@ -1450,7 +1472,6 @@ async function handleUserLoggedIn(user) {
     return;
   }
 
-  // ✅ الطالب العادي → صفحة المحاضرات
   showPage('lecturesPage');
   await updateLectureBadges();
 }
@@ -1671,6 +1692,9 @@ async function verifyAccessCode() {
   }
 }
 
+/* =========================================
+   🎬 فتح الفيديو (يدعم mp4 / Google Drive / OneDrive / YouTube / Vimeo)
+   ========================================= */
 function openVideo(data) {
   showPage('videoPage');
   document.getElementById('videoTitle').textContent = data.lectureName;
@@ -1687,12 +1711,58 @@ function openVideo(data) {
   }
 
   const encryptedUrl = activeVideos[data.lectureName];
-  if (!encryptedUrl) { alert('⚠️ الفيديو غير متاح حالياً'); return; }
+  if (!encryptedUrl) { 
+    alert('⚠️ الفيديو غير متاح حالياً'); 
+    return; 
+  }
 
   const videoUrl = decodeUrl(encryptedUrl);
+  console.log('🎬 Video URL:', videoUrl);
+
+  if (!videoUrl) {
+    alert('⚠️ خطأ في فك تشفير رابط الفيديو');
+    return;
+  }
+
   const wrapper = document.getElementById('videoWrapper');
   wrapper.innerHTML = '';
 
+  // ✅ كشف نوع الرابط
+  const isGoogleDrive = videoUrl.includes('drive.google.com') || videoUrl.includes('docs.google.com');
+  const isYouTube = videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be');
+  const isVimeo = videoUrl.includes('vimeo.com');
+  const isOneDrive = videoUrl.includes('1drv.ms') || videoUrl.includes('onedrive.live.com');
+
+  // ✅ الحالة 1: Google Drive / YouTube / Vimeo / OneDrive → iframe
+  if (isGoogleDrive || isYouTube || isVimeo || isOneDrive) {
+    let embedUrl = videoUrl;
+
+    if (isYouTube) {
+      const ytMatch = videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([^&?\/]+)/);
+      if (ytMatch && ytMatch[1]) {
+        embedUrl = `https://www.youtube.com/embed/${ytMatch[1]}`;
+      }
+    }
+
+    if (isVimeo) {
+      const vMatch = videoUrl.match(/vimeo\.com\/(\d+)/);
+      if (vMatch && vMatch[1]) {
+        embedUrl = `https://player.vimeo.com/video/${vMatch[1]}`;
+      }
+    }
+
+    // OneDrive → الرابط أصلاً بقى فيه embed=1 من decodeUrl
+
+    const iframe = document.createElement('iframe');
+    iframe.src = embedUrl;
+    iframe.setAttribute('allow', 'autoplay; encrypted-media; fullscreen');
+    iframe.setAttribute('allowfullscreen', 'true');
+    iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+    wrapper.appendChild(iframe);
+    return;
+  }
+
+  // ✅ الحالة 2: رابط mp4 مباشر → video tag
   const videoEl = document.createElement('video');
   videoEl.controls = true;
   videoEl.controlsList = 'nodownload noplaybackrate noremoteplayback';
@@ -1707,6 +1777,18 @@ function openVideo(data) {
 
   videoEl.appendChild(sourceEl);
   wrapper.appendChild(videoEl);
+
+  videoEl.addEventListener('error', (e) => {
+    console.error('❌ Video error:', e);
+    wrapper.innerHTML = `
+      <div style="padding: 40px; text-align: center; color: #ef4444;">
+        <i class="fas fa-exclamation-triangle" style="font-size: 50px; margin-bottom: 15px;"></i>
+        <h3>⚠️ الفيديو غير متاح حالياً</h3>
+        <p style="color: #94a3b8; margin-top: 10px;">الرابط قد يكون منتهي أو غير مباشر</p>
+      </div>
+    `;
+  });
+
   videoEl.load();
   videoEl.addEventListener('contextmenu', e => e.preventDefault());
 }
