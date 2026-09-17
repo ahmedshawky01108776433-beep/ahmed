@@ -80,6 +80,16 @@ body { --main-color: #00d4ff; --main-color-dark: #0099cc; --main-color-rgb: 0,21
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ===== SPLASH SCREEN ===== */
+#splashScreen {
+  position: fixed; inset: 0;
+  background: linear-gradient(135deg, #020617, #0f172a, #111827);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 99998;
+  transition: opacity 0.4s;
+}
+
 /* ===== PLATFORM SELECT PAGE ===== */
 #platformPage {
   align-items: center; justify-content: center;
@@ -634,6 +644,13 @@ body { --main-color: #00d4ff; --main-color-dark: #0099cc; --main-color-rgb: 0,21
   <p>استخدام أدوات المطور غير مسموح لأسباب أمنية.<br>من فضلك اقفل DevTools وأعد تحميل الصفحة.</p>
 </div>
 
+<!-- ===== SPLASH SCREEN ===== -->
+<div id="splashScreen">
+  <i class="fas fa-atom" style="font-size: 70px; color: #00d4ff; margin-bottom: 25px; animation: float 2s ease-in-out infinite;"></i>
+  <h2 style="color: white; font-size: 22px; margin-bottom: 12px;">جاري التحميل...</h2>
+  <p style="color: #94a3b8; font-size: 14px;">من فضلك استنى لحظة</p>
+</div>
+
 <!-- NAVBAR -->
 <nav class="navbar">
   <div class="logo">
@@ -665,7 +682,7 @@ body { --main-color: #00d4ff; --main-color-dark: #0099cc; --main-color-rgb: 0,21
 </nav>
 
 <!-- PLATFORM SELECT PAGE -->
-<section class="page active" id="platformPage">
+<section class="page" id="platformPage">
   <div class="platform-container">
     <div class="platform-logo">
       <i class="fas fa-atom"></i>
@@ -1074,6 +1091,7 @@ let activeDb = null;
 let activeAdminEmail = null;
 let activeVideos = null;
 let currentUser = null;
+let autoLoginChecked = false;
 
 /* ===== Device Fingerprint ===== */
 let deviceId = null;
@@ -1187,7 +1205,6 @@ function activatePlatform(platform) {
     document.getElementById('authSubtitle').textContent =
       'منصة تعليمية متكاملة للكورس الأونلاين.';
 
-    // ✅ إظهار تبويب "حساب جديد" + زرار Google في الأونلاين
     tabRegister.style.display = 'flex';
     googleDivider.style.display = 'flex';
     googleBtn.style.display = 'flex';
@@ -1205,7 +1222,6 @@ function activatePlatform(platform) {
     document.getElementById('authSubtitle').textContent =
       'منصة تعليمية مخصصة لطلاب السنتر.';
 
-    // ❌ إخفاء تبويب "حساب جديد" + زرار Google في السنتر
     tabRegister.style.display = 'none';
     googleDivider.style.display = 'none';
     googleBtn.style.display = 'none';
@@ -1237,7 +1253,6 @@ let selectedLecture = null;
 
 /* ===== Tabs ===== */
 function switchAuthTab(mode) {
-  // 🔒 حماية: لو إحنا في السنتر، ممنوع نروح لوضع "حساب جديد"
   if (mode === 'register' && activePlatform === 'center') {
     mode = 'login';
   }
@@ -1305,6 +1320,11 @@ async function registerWithEmail() {
     await result.user.updateProfile({ displayName: name });
 
     showAuthSuccess(`✅ تم إنشاء حسابك بنجاح يا ${name} في منصة الأونلاين!`);
+
+    // ✅ التعديل: ننقل المستخدم مباشرة بعد التسجيل
+    setTimeout(async () => {
+      await handleUserLoggedIn(result.user);
+    }, 800);
   } catch (error) {
     showAuthError(getAuthErrorMessage(error.code));
   } finally {
@@ -1327,8 +1347,13 @@ async function loginWithEmail() {
   setAuthLoading(true, 'جاري الدخول...');
 
   try {
-    await activeAuth.signInWithEmailAndPassword(email, password);
+    const result = await activeAuth.signInWithEmailAndPassword(email, password);
     showAuthSuccess('✅ تم تسجيل الدخول بنجاح!');
+
+    // ✅ التعديل الأهم: ننقل المستخدم مباشرة بعد الدخول
+    setTimeout(async () => {
+      await handleUserLoggedIn(result.user);
+    }, 800);
   } catch (error) {
     showAuthError(getAuthErrorMessage(error.code));
   } finally {
@@ -1340,7 +1365,6 @@ async function loginWithEmail() {
    📱 تسجيل الدخول بـ Google (الأونلاين فقط)
    ========================================= */
 async function loginWithGoogle() {
-  // 🔒 حماية: ممنوع Google في السنتر
   if (activePlatform === 'center') {
     showAuthError('⚠️ الدخول بحساب Google غير متاح في منصة السنتر.\nمن فضلك سجل دخولك بالإيميل وكلمة المرور.');
     return;
@@ -1353,8 +1377,13 @@ async function loginWithGoogle() {
   setAuthLoading(true, 'جاري فتح Google...');
 
   try {
-    await activeAuth.signInWithPopup(provider);
+    const result = await activeAuth.signInWithPopup(provider);
     showAuthSuccess('✅ تم تسجيل الدخول بحساب Google!');
+
+    // ✅ التعديل: ننقل المستخدم مباشرة بعد الدخول بـ Google
+    setTimeout(async () => {
+      await handleUserLoggedIn(result.user);
+    }, 800);
   } catch (error) {
     if (error.code !== 'auth/popup-closed-by-user') {
       showAuthError(getAuthErrorMessage(error.code));
@@ -1384,6 +1413,8 @@ async function resetPassword() {
    ✅ معالجة المستخدم بعد تسجيل الدخول
    ========================================= */
 async function handleUserLoggedIn(user) {
+  if (!user) return;
+
   currentUser = user;
   const displayName = user.displayName || user.email.split('@')[0];
   const userEmail = user.email.toLowerCase();
@@ -1398,6 +1429,9 @@ async function handleUserLoggedIn(user) {
     return;
   }
 
+  // إخفاء رسائل الـ auth
+  hideAuthMessages();
+
   document.getElementById('userInfo').style.display = 'flex';
   document.getElementById('studentName').textContent = displayName;
 
@@ -1407,6 +1441,7 @@ async function handleUserLoggedIn(user) {
     avatar.style.display = 'block';
   }
 
+  // ✅ لو الأدمن
   if (userEmail === activeAdminEmail) {
     document.getElementById('userInfo').style.display = 'none';
     document.getElementById('adminInfo').style.display = 'flex';
@@ -1415,6 +1450,7 @@ async function handleUserLoggedIn(user) {
     return;
   }
 
+  // ✅ الطالب العادي → صفحة المحاضرات
   showPage('lecturesPage');
   await updateLectureBadges();
 }
@@ -1431,6 +1467,8 @@ async function logout() {
 
       localStorage.removeItem('activeCode');
       localStorage.removeItem('studentName');
+
+      autoLoginChecked = true;
       location.reload();
     } catch (error) {
       alert('حدث خطأ أثناء تسجيل الخروج');
@@ -1442,7 +1480,6 @@ async function logout() {
    التنقل بين الصفحات
    ========================================= */
 function showPage(pageId) {
-  // 🎯 حماية: ممنوع صفحة الكود في السنتر
   if (pageId === 'codePage' && activePlatform === 'center') {
     pageId = 'lecturesPage';
   }
@@ -1481,7 +1518,6 @@ async function checkStudentAccess(lectureName) {
 async function updateLectureBadges() {
   if (!currentUser || currentUser.email.toLowerCase() === activeAdminEmail) return;
 
-  // 🎯 منصة السنتر: كل المحاضرات مفتوحة على طول
   if (activePlatform === 'center') {
     lecturesList.forEach((lecture, index) => {
       const badge = document.getElementById('badge-' + index);
@@ -1492,7 +1528,6 @@ async function updateLectureBadges() {
     return;
   }
 
-  // 🔵 منصة الأونلاين: النظام العادي
   const userEmail = currentUser.email.toLowerCase();
   const now = new Date();
 
@@ -1528,7 +1563,6 @@ async function updateLectureBadges() {
 async function selectLecture(lectureName) {
   selectedLecture = lectureName;
 
-  // 🎯 منصة السنتر: مفيش كود خالص — الفيديو يفتح على طول
   if (activePlatform === 'center') {
     const fakeData = {
       lectureName: lectureName,
@@ -1542,7 +1576,6 @@ async function selectLecture(lectureName) {
     return;
   }
 
-  // 🔵 منصة الأونلاين: النظام القديم بالكود
   const existingAccess = await checkStudentAccess(lectureName);
 
   if (existingAccess) {
@@ -1610,7 +1643,6 @@ async function verifyAccessCode() {
       return;
     }
 
-    // 🔒 في منصة الأونلاين: الكود لازم يكون مخصص للطالب ده
     if (activePlatform === 'online') {
       const userEmail = currentUser.email.toLowerCase();
       if (data.studentEmail !== userEmail) {
@@ -1644,7 +1676,6 @@ function openVideo(data) {
   document.getElementById('videoTitle').textContent = data.lectureName;
   document.getElementById('studentNameVideo').textContent = data.studentName;
 
-  // 🎯 في السنتر: نخفي تاريخ الانتهاء
   const expirySpan = document.getElementById('expiryDate').parentElement;
   if (activePlatform === 'center') {
     expirySpan.style.display = 'none';
@@ -1921,17 +1952,103 @@ function getAuthErrorMessage(code) {
 }
 
 /* =========================================
-   🔄 متابعة حالة الدخول
+   🚀 Auto-Login: التحقق التلقائي عند فتح الصفحة
+   ========================================= */
+async function tryAutoLogin() {
+  if (autoLoginChecked) return;
+  autoLoginChecked = true;
+
+  try {
+    const onlineUser = await new Promise(resolve => {
+      const unsubscribe = onlineAuth.onAuthStateChanged(user => {
+        unsubscribe();
+        resolve(user);
+      });
+    });
+
+    const centerUser = await new Promise(resolve => {
+      const unsubscribe = centerAuth.onAuthStateChanged(user => {
+        unsubscribe();
+        resolve(user);
+      });
+    });
+
+    if (onlineUser) {
+      console.log('🔵 Auto-Login: Online');
+      activatePlatform('online');
+      await handleUserLoggedIn(onlineUser);
+      hideSplash();
+      return;
+    }
+
+    if (centerUser) {
+      console.log('🎯 Auto-Login: Center');
+      activatePlatform('center');
+      await handleUserLoggedIn(centerUser);
+      hideSplash();
+      return;
+    }
+
+    console.log('👤 No auto-login - showing platform page');
+    showPage('platformPage');
+    hideSplash();
+
+  } catch (error) {
+    console.error('Auto-login error:', error);
+    showPage('platformPage');
+    hideSplash();
+  }
+}
+
+function hideSplash() {
+  const splash = document.getElementById('splashScreen');
+  if (splash) {
+    splash.style.opacity = '0';
+    splash.style.transition = 'opacity 0.4s';
+    setTimeout(() => splash.style.display = 'none', 400);
+  }
+}
+
+window.addEventListener('load', () => {
+  setTimeout(tryAutoLogin, 500);
+});
+
+setTimeout(() => {
+  const splash = document.getElementById('splashScreen');
+  if (splash && splash.style.display !== 'none') {
+    console.warn('⚠️ Auto-login timeout - hiding splash');
+    hideSplash();
+  }
+}, 3500);
+
+/* =========================================
+   🔄 متابعة حالة الدخول (للخروج التلقائي فقط)
    ========================================= */
 onlineAuth.onAuthStateChanged(async (user) => {
-  if (user && activePlatform === 'online') {
-    await handleUserLoggedIn(user);
+  if (!autoLoginChecked) return;
+
+  if (!user && activePlatform === 'online') {
+    const centerUser = centerAuth.currentUser;
+    if (!centerUser) {
+      showPage('platformPage');
+      document.getElementById('platformBadge').style.display = 'none';
+      document.getElementById('userInfo').style.display = 'none';
+      document.getElementById('adminInfo').style.display = 'none';
+    }
   }
 });
 
 centerAuth.onAuthStateChanged(async (user) => {
-  if (user && activePlatform === 'center') {
-    await handleUserLoggedIn(user);
+  if (!autoLoginChecked) return;
+
+  if (!user && activePlatform === 'center') {
+    const onlineUser = onlineAuth.currentUser;
+    if (!onlineUser) {
+      showPage('platformPage');
+      document.getElementById('platformBadge').style.display = 'none';
+      document.getElementById('userInfo').style.display = 'none';
+      document.getElementById('adminInfo').style.display = 'none';
+    }
   }
 });
 
