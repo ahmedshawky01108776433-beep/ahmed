@@ -20,7 +20,7 @@ body {
 }
 a { text-decoration: none; color: white; }
 
-/* ===== Theme Colors (لون واحد للاتنين) ===== */
+/* ===== Theme Colors ===== */
 body.theme-online,
 body.theme-center {
   --main-color: #00d4ff;
@@ -42,6 +42,15 @@ body { --main-color: #00d4ff; --main-color-dark: #0099cc; --main-color-rgb: 0,21
   font-size: 28px; font-weight: 800; color: var(--main-color);
   display: flex; align-items: center; gap: 10px;
   transition: color 0.3s;
+}
+/* ✅ صورة اللوجو في الـ Navbar - دايرة */
+.logo-img {
+  width: 42px; height: 42px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid var(--main-color);
+  filter: drop-shadow(0 0 10px rgba(var(--main-color-rgb), 0.5));
+  background: #0f172a;
 }
 .logo-badge {
   font-size: 11px; padding: 4px 10px; border-radius: 50px;
@@ -89,6 +98,17 @@ body { --main-color: #00d4ff; --main-color-dark: #0099cc; --main-color-rgb: 0,21
   z-index: 99998;
   transition: opacity 0.4s;
 }
+/* ✅ صورة اللوجو في شاشة التحميل - دايرة */
+.splash-logo-img {
+  width: 120px; height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 212, 255, 0.6);
+  margin-bottom: 25px;
+  animation: float 2s ease-in-out infinite;
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+  background: #0f172a;
+}
 
 /* ===== PLATFORM SELECT PAGE ===== */
 #platformPage {
@@ -111,8 +131,21 @@ body { --main-color: #00d4ff; --main-color-dark: #0099cc; --main-color-rgb: 0,21
   z-index: 2; position: relative;
 }
 .platform-logo {
-  font-size: 60px; color: #00d4ff; margin-bottom: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+/* ✅ صورة اللوجو الكبيرة في صفحة اختيار المنصة - دايرة */
+.platform-logo-img {
+  width: 190px;
+  height: 190px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 212, 255, 0.6);
+  box-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
   animation: float 3s ease-in-out infinite;
+  background: #0f172a;
 }
 @keyframes float {
   0%, 100% { transform: translateY(0); }
@@ -141,13 +174,11 @@ body { --main-color: #00d4ff; --main-color-dark: #0099cc; --main-color-rgb: 0,21
   width: 100%; height: 4px; transition: all 0.4s;
   background: linear-gradient(90deg, #00d4ff, #0099cc);
 }
-
 .platform-card:hover { transform: translateY(-12px); }
 .platform-card:hover {
   border-color: #00d4ff;
   box-shadow: 0 25px 60px rgba(0,212,255,0.3);
 }
-
 .platform-icon {
   width: 100px; height: 100px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
@@ -615,7 +646,7 @@ body { --main-color: #00d4ff; --main-color-dark: #0099cc; --main-color-rgb: 0,21
   .platform-cards { grid-template-columns: 1fr; }
   .platform-container h1 { font-size: 32px; }
   .platform-container > p { font-size: 15px; margin-bottom: 35px; }
-  .platform-logo { font-size: 45px; }
+  .platform-logo-img { width: 130px; height: 130px; }
   .platform-card { padding: 35px 20px; }
   .platform-icon { width: 80px; height: 80px; font-size: 35px; }
 
@@ -625,6 +656,8 @@ body { --main-color: #00d4ff; --main-color-dark: #0099cc; --main-color-rgb: 0,21
   .auth-box { margin: 0 auto; }
 
   .logo { font-size: 20px; }
+  .logo-img { width: 34px; height: 34px; }
+  .splash-logo-img { width: 90px; height: 90px; }
   .admin-grid { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: 1fr; }
   .page-header h1 { font-size: 28px; }
@@ -649,7 +682,7 @@ body { --main-color: #00d4ff; --main-color-dark: #0099cc; --main-color-rgb: 0,21
 
 <!-- ===== SPLASH SCREEN ===== -->
 <div id="splashScreen">
-  <i class="fas fa-atom" style="font-size: 70px; color: #00d4ff; margin-bottom: 25px; animation: float 2s ease-in-out infinite;"></i>
+  <img src="https://i.postimg.cc/PNsL94Bf/Whats-App-Image-2026-10-08-at-2-05-17-AM.jpg" alt="Loading" class="splash-logo-img">
   <h2 style="color: white; font-size: 22px; margin-bottom: 12px;">جاري التحميل...</h2>
   <p style="color: #94a3b8; font-size: 14px;">من فضلك استنى لحظة</p>
 </div>
@@ -657,7 +690,7 @@ body { --main-color: #00d4ff; --main-color-dark: #0099cc; --main-color-rgb: 0,21
 <!-- NAVBAR -->
 <nav class="navbar">
   <div class="logo">
-    <i class="fas fa-atom"></i>
+    <img src="https://i.postimg.cc/PNsL94Bf/Whats-App-Image-2026-10-08-at-2-05-17-AM.jpg" alt="Logo" class="logo-img">
     Ahmed Shawky
     <span class="logo-badge" id="platformBadge" style="display:none;"></span>
   </div>
@@ -688,7 +721,7 @@ body { --main-color: #00d4ff; --main-color-dark: #0099cc; --main-color-rgb: 0,21
 <section class="page" id="platformPage">
   <div class="platform-container">
     <div class="platform-logo">
-      <i class="fas fa-atom"></i>
+      <img src="https://i.postimg.cc/PNsL94Bf/Whats-App-Image-2026-10-08-at-2-05-17-AM.jpg" alt="Ahmed Shawky Logo" class="platform-logo-img">
     </div>
     <h1>منصة <span>أحمد شوقي</span> للفيزياء</h1>
     <p>اختر نوع حسابك للدخول على المنصة</p>
@@ -1079,7 +1112,6 @@ function decodeUrl(encoded) {
   try {
     let url = atob(encoded);
 
-    // Google Drive → preview
     if (url.includes('drive.google.com')) {
       const match = url.match(/\/file\/d\/([^\/]+)/);
       if (match && match[1]) {
@@ -1087,7 +1119,6 @@ function decodeUrl(encoded) {
       }
     }
 
-    // OneDrive → نضمن إن فيه embed=1
     if (url.includes('1drv.ms') || url.includes('onedrive.live.com')) {
       if (!url.includes('embed=1')) {
         const separator = url.includes('?') ? '&' : '?';
@@ -1693,7 +1724,7 @@ async function verifyAccessCode() {
 }
 
 /* =========================================
-   🎬 فتح الفيديو (يدعم mp4 / Google Drive / OneDrive / YouTube / Vimeo)
+   🎬 فتح الفيديو
    ========================================= */
 function openVideo(data) {
   showPage('videoPage');
@@ -1727,13 +1758,11 @@ function openVideo(data) {
   const wrapper = document.getElementById('videoWrapper');
   wrapper.innerHTML = '';
 
-  // ✅ كشف نوع الرابط
   const isGoogleDrive = videoUrl.includes('drive.google.com') || videoUrl.includes('docs.google.com');
   const isYouTube = videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be');
   const isVimeo = videoUrl.includes('vimeo.com');
   const isOneDrive = videoUrl.includes('1drv.ms') || videoUrl.includes('onedrive.live.com');
 
-  // ✅ الحالة 1: Google Drive / YouTube / Vimeo / OneDrive → iframe
   if (isGoogleDrive || isYouTube || isVimeo || isOneDrive) {
     let embedUrl = videoUrl;
 
@@ -1751,8 +1780,6 @@ function openVideo(data) {
       }
     }
 
-    // OneDrive → الرابط أصلاً بقى فيه embed=1 من decodeUrl
-
     const iframe = document.createElement('iframe');
     iframe.src = embedUrl;
     iframe.setAttribute('allow', 'autoplay; encrypted-media; fullscreen');
@@ -1762,7 +1789,6 @@ function openVideo(data) {
     return;
   }
 
-  // ✅ الحالة 2: رابط mp4 مباشر → video tag
   const videoEl = document.createElement('video');
   videoEl.controls = true;
   videoEl.controlsList = 'nodownload noplaybackrate noremoteplayback';
@@ -2034,7 +2060,7 @@ function getAuthErrorMessage(code) {
 }
 
 /* =========================================
-   🚀 Auto-Login: التحقق التلقائي عند فتح الصفحة
+   🚀 Auto-Login
    ========================================= */
 async function tryAutoLogin() {
   if (autoLoginChecked) return;
@@ -2104,7 +2130,7 @@ setTimeout(() => {
 }, 3500);
 
 /* =========================================
-   🔄 متابعة حالة الدخول (للخروج التلقائي فقط)
+   🔄 متابعة حالة الدخول
    ========================================= */
 onlineAuth.onAuthStateChanged(async (user) => {
   if (!autoLoginChecked) return;
