@@ -1066,22 +1066,18 @@ const centerDb   = centerApp.firestore();
 const ONLINE_ADMIN = "ahmedshawky01108776433@gmail.com";
 const CENTER_ADMIN = "ahmedshawky01108776433@gmail.com";
 
-// مفتاح التشفير السري الخاص بيك
 const mySecretKey = "youssef0110";
 
-// الروابط بعد تشفيرها بـ AES
 const ONLINE_VIDEOS = {
-  'الفصل الثالث - محاضرة 4': 'U2FsdGVkX19k87dvWPizUrEPHOXeSt/6BiBdA60j/AKFMgSBsU9G+6om5aXr7v1QsbjxvriViNUNSCichaqmG0K6HZFhuRduLROtNOCvyMn2RBdPTw+2yFL2V4HoFAHv6HdBuV6zqNnTu18VdLSBSg==',
-  'الفصل الرابع - محاضرة 1': 'U2FsdGVkX19k87dvWPizUrEPHOXeSt/6BiBdA60j/AKFMgSBsU9G+6om5aXr7v1QsbjxvriViNUNSCichaqmG0K6HZFhuRduLROtNOCvyMn2RBdPTw+2yFL2V4HoFAHv6HdBuV6zqNnTu18VdLSBSg==',
-  'مراجعة نهائية شاملة': 'U2FsdGVkX19k87dvWPizUrEPHOXeSt/6BiBdA60j/AKFMgSBsU9G+6om5aXr7v1QsbjxvriViNUNSCichaqmG0K6HZFhuRduLROtNOCvyMn2RBdPTw+2yFL2V4HoFAHv6HdBuV6zqNnTu18VdLSBSg=='
+  'الفصل الثالث - محاضرة 4': 'U2FsdGVkX1+azcN7obCu8OA/CxkHezKXj3t5nQ3BDSzcWUrFx7hngLf6s+3ayXFvXIB/Lgml+SjW081qYEJO+26I7DZDOP3k3sne9KIo6gXWWQ/QCNoaaL9J0w8IbIME',
+  'الفصل الرابع - محاضرة 1': 'U2FsdGVkX18Gonf3f6l+SFkxaUSSOzkeFwdot2hCcEt2gBtZWu4UcK6CgeXt2iZJ41MihNzi4g+xDka8DsfP74zfjTwoK+3IGQihKYLLlqjUJ49+TD5pj1dTacDoNLqv6UkJxliLpnrbSTHCHOxcog==',
+  'مراجعة نهائية شاملة': 'U2FsdGVkX19wmkmaKerl0S3RJTx/SIYb9/5E05RI33wGJAZJJe5k/LLYXSCodqSyOEN7PMLt1ZZokmTFjmDTpv+b6Qeoq8qdrCPrxfUV9ebGNlCeDrhuxHToy9DEq2dn1YVBwWgZHKYunoRMRfCT1EA=='
 };
 
 const CENTER_VIDEOS = ONLINE_VIDEOS;
 
-// دالة فك التشفير باستخدام مكتبة CryptoJS
 function decodeUrl(encoded) {
   try {
-    // فك تشفير AES باستخدام كلمة السر الخاصة بيك
     var bytes = CryptoJS.AES.decrypt(encoded, mySecretKey);
     let url = bytes.toString(CryptoJS.enc.Utf8);
 
@@ -1089,32 +1085,6 @@ function decodeUrl(encoded) {
       console.error('فشل فك التشفير، تأكد من صحة المفتاح أو النص المشفر.');
       return '';
     }
-
-    // معالجة روابط Google Drive أو OneDrive لو محتاجة تعديل العرض
-    if (url.includes('drive.google.com')) {
-      const match = url.match(/\/file\/d\/([^\/]+)/);
-      if (match && match[1]) {
-        return `https://drive.google.com/file/d/${match[1]}/preview`;
-      }
-    }
-
-    if (url.includes('1drv.ms') || url.includes('onedrive.live.com')) {
-      if (!url.includes('embed=1')) {
-        const separator = url.includes('?') ? '&' : '?';
-        url = url + separator + 'embed=1';
-      }
-      return url;
-    }
-
-    return url;
-  } catch (e) {
-    console.error('Decode error:', e);
-    return '';
-  }
-}
-function decodeUrl(encoded) {
-  try {
-    let url = atob(encoded);
 
     if (url.includes('drive.google.com')) {
       const match = url.match(/\/file\/d\/([^\/]+)/);
@@ -1725,10 +1695,11 @@ function openVideo(data) {
   }
 
   const videoUrl = decodeUrl(encryptedUrl);
-  console.log('🎬 Video URL:', videoUrl);
+  console.log('🔐 Encrypted:', encryptedUrl);
+  console.log('🎬 Decoded URL:', videoUrl);
 
   if (!videoUrl) {
-    alert('⚠️ خطأ في فك تشفير رابط الفيديو');
+    alert('⚠️ خطأ في فك تشفير رابط الفيديو\n\nتأكد إن المفتاح "youssef0110" صح وإن الروابط اتشفرت بنفس المفتاح.');
     return;
   }
 
@@ -2173,9 +2144,6 @@ document.getElementById('userPassword').addEventListener('keypress', function(e)
 document.getElementById('accessCode').addEventListener('keypress', function(e) {
   if (e.key === 'Enter') verifyAccessCode();
 });
-
-
-
 
 </script>
 
