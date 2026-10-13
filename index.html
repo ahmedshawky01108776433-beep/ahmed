@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>منصة أحمد شوقي | Physics Academy</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2139,6 +2140,14 @@ document.getElementById('userPassword').addEventListener('keypress', function(e)
 document.getElementById('accessCode').addEventListener('keypress', function(e) {
   if (e.key === 'Enter') verifyAccessCode();
 });
+
+
+
+ var originalLink = "https://drive.google.com/file/d/xxxxxx/view"; 
+        var mySecretKey = "AhmedShawky_Secret_2024"; 
+        var encrypted = CryptoJS.AES.encrypt(originalLink, mySecretKey).toString(); 
+        console.log("Encrypted Link: " + encrypted); 
+        alert("Check the console (F12) for your encrypted link!"); 
 </script>
 
 </body>
