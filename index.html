@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>منصة أحمد شوقي | Physics Academy</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1054,7 +1054,6 @@ const CENTER_CONFIG = {
   appId: "1:512513517329:web:92a6e454672d0827c20eb0",
   measurementId: "G-VLLKKF41J7"
 };
-
 const onlineApp = firebase.initializeApp(ONLINE_CONFIG, "online");
 const centerApp = firebase.initializeApp(CENTER_CONFIG, "center");
 
@@ -1067,18 +1066,52 @@ const centerDb   = centerApp.firestore();
 const ONLINE_ADMIN = "ahmedshawky01108776433@gmail.com";
 const CENTER_ADMIN = "ahmedshawky01108776433@gmail.com";
 
+// مفتاح التشفير السري الخاص بيك
+const mySecretKey = "youssef0110";
+
+// الروابط بعد تشفيرها بـ AES
 const ONLINE_VIDEOS = {
-  'الفصل الثالث - محاضرة 4': 'aHR0cHM6Ly9lLnRvcDR0b3AuaW8vbV8zOTEyZmowNjkxLm1wNA==',
-  'الفصل الرابع - محاضرة 1': 'aHR0cHM6Ly8xZHJ2Lm1zL3YvYy81YTgxMjVlMWIyMWMxOGY1L0lRUjB5WHYyRGU3dFRLbDdRVW1MMGtJWEFmMnRXbVRyd0FVZWxMc21NUzlrY3Yw',
-  'مراجعة نهائية شاملة': 'aHR0cHM6Ly8xZHJ2Lm1zL3YvYy81YTgxMjVlMWIyMWMxOGY1L0lRUjB5WHYyRGU3dFRLbDdRVW1MMGtJWEFmMnRXbVRyd0FVZWxMc21NUzlrY3Yw'
+  'الفصل الثالث - محاضرة 4': 'U2FsdGVkX19k87dvWPizUrEPHOXeSt/6BiBdA60j/AKFMgSBsU9G+6om5aXr7v1QsbjxvriViNUNSCichaqmG0K6HZFhuRduLROtNOCvyMn2RBdPTw+2yFL2V4HoFAHv6HdBuV6zqNnTu18VdLSBSg==',
+  'الفصل الرابع - محاضرة 1': 'U2FsdGVkX19k87dvWPizUrEPHOXeSt/6BiBdA60j/AKFMgSBsU9G+6om5aXr7v1QsbjxvriViNUNSCichaqmG0K6HZFhuRduLROtNOCvyMn2RBdPTw+2yFL2V4HoFAHv6HdBuV6zqNnTu18VdLSBSg==',
+  'مراجعة نهائية شاملة': 'U2FsdGVkX19k87dvWPizUrEPHOXeSt/6BiBdA60j/AKFMgSBsU9G+6om5aXr7v1QsbjxvriViNUNSCichaqmG0K6HZFhuRduLROtNOCvyMn2RBdPTw+2yFL2V4HoFAHv6HdBuV6zqNnTu18VdLSBSg=='
 };
 
-const CENTER_VIDEOS = {
-  'الفصل الثالث - محاضرة 4': 'aHR0cHM6Ly9lLnRvcDR0b3AuaW8vbV8zOTEyZmowNjkxLm1wNA==',
-  'الفصل الرابع - محاضرة 1': 'aHR0cHM6Ly8xZHJ2Lm1zL3YvYy81YTgxMjVlMWIyMWMxOGY1L0lRUjB5WHYyRGU3dFRLbDdRVW1MMGtJWEFmMnRXbVRyd0FVZWxMc21NUzlrY3Yw',
-  'مراجعة نهائية شاملة': 'aHR0cHM6Ly8xZHJ2Lm1zL3YvYy81YTgxMjVlMWIyMWMxOGY1L0lRUjB5WHYyRGU3dFRLbDdRVW1MMGtJWEFmMnRXbVRyd0FVZWxMc21NUzlrY3Yw'
-};
+const CENTER_VIDEOS = ONLINE_VIDEOS;
 
+// دالة فك التشفير باستخدام مكتبة CryptoJS
+function decodeUrl(encoded) {
+  try {
+    // فك تشفير AES باستخدام كلمة السر الخاصة بيك
+    var bytes = CryptoJS.AES.decrypt(encoded, mySecretKey);
+    let url = bytes.toString(CryptoJS.enc.Utf8);
+
+    if (!url) {
+      console.error('فشل فك التشفير، تأكد من صحة المفتاح أو النص المشفر.');
+      return '';
+    }
+
+    // معالجة روابط Google Drive أو OneDrive لو محتاجة تعديل العرض
+    if (url.includes('drive.google.com')) {
+      const match = url.match(/\/file\/d\/([^\/]+)/);
+      if (match && match[1]) {
+        return `https://drive.google.com/file/d/${match[1]}/preview`;
+      }
+    }
+
+    if (url.includes('1drv.ms') || url.includes('onedrive.live.com')) {
+      if (!url.includes('embed=1')) {
+        const separator = url.includes('?') ? '&' : '?';
+        url = url + separator + 'embed=1';
+      }
+      return url;
+    }
+
+    return url;
+  } catch (e) {
+    console.error('Decode error:', e);
+    return '';
+  }
+}
 function decodeUrl(encoded) {
   try {
     let url = atob(encoded);
@@ -2143,11 +2176,7 @@ document.getElementById('accessCode').addEventListener('keypress', function(e) {
 
 
 
- var originalLink = "https://drive.google.com/file/d/xxxxxx/view"; 
-        var mySecretKey = "AhmedShawky_Secret_2024"; 
-        var encrypted = CryptoJS.AES.encrypt(originalLink, mySecretKey).toString(); 
-        console.log("Encrypted Link: " + encrypted); 
-        alert("Check the console (F12) for your encrypted link!"); 
+
 </script>
 
 </body>
