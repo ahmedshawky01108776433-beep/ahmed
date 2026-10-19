@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "627222497471",
+    "project_id": "ahmed-3bdd6",
+    "storage_bucket": "ahmed-3bdd6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:627222497471:android:f7df858a213da567561e0a",
+        "android_client_info": {
+          "package_name": "com.ahmedshawky.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "627222497471-qifuge6ue471973svfio7a7vfau08glb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ahmedshawky.app",
+            "certificate_hash": "459e285006f4dfbf98e235f15d0df2bc17857284"
+          }
+        },
+        {
+          "client_id": "627222497471-k8r9f85d58j0suaivea21cjk8r97budc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBR-1nDTZSwN2mqJCmRqxzrWsuehizXp3k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "627222497471-k8r9f85d58j0suaivea21cjk8r97budc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
