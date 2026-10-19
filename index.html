@@ -410,10 +410,8 @@ async function loginWithEmail(){
 }
 
 /* ======================================================
-   ✅ دالة Google Login بعد التعديل
-   - signInWithPopup (كما كان)
-   - إضافة prompt: 'select_account' لاختيار الحساب كل مرة
-   - معالجة أفضل للأخطاء (popup-closed / popup-blocked)
+   ✅ loginWithGoogle - محدّث لاستخدام signInWithRedirect
+   لتجاوز حظر WebView في التطبيقات
    ====================================================== */
 async function loginWithGoogle(){
   if("center"===activePlatform)
@@ -425,25 +423,14 @@ async function loginWithGoogle(){
   provider.setCustomParameters({ prompt: 'select_account' });
 
   hideAuthMessages();
-  setAuthLoading(!0, "جاري فتح Google...");
+  setAuthLoading(!0, "جاري فتح تسجيل الدخول...");
 
-  try{
-    const result = await activeAuth.signInWithPopup(provider);
-    showAuthSuccess("✅ تم تسجيل الدخول بحساب Google!");
-    setTimeout((async()=>{ await handleUserLoggedIn(result.user) }), 800);
-  }catch(err){
-    if(err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request"){
-      // المستخدم قفل النافذة - مش خطأ حقيقي
-      setAuthLoading(false);
-      return;
-    }
-    if(err.code === "auth/popup-blocked"){
-      showAuthError("⚠️ المتصفح منع النافذة المنبثقة. اسمح بالنوافذ المنبثقة وجرب تاني.");
-    }else{
-      showAuthError(getAuthErrorMessage(err.code));
-    }
-  }finally{
+  try {
+    // استخدام signInWithRedirect بدلاً من Popup لتجاوز حظر WebView في التطبيقات
+    await activeAuth.signInWithRedirect(provider);
+  } catch(err) {
     setAuthLoading(false);
+    showAuthError(getAuthErrorMessage(err.code));
   }
 }
 
@@ -696,17 +683,66 @@ function getAuthErrorMessage(e){
     "auth/operation-not-allowed":"البريد/كلمة المرور غير مفعّل في Firebase",
     "auth/popup-blocked":"المتصفح منع النافذة، اسمح بالنوافذ المنبثقة",
     "auth/account-exists-with-different-credential":"البريد مستخدم بطريقة دخول مختلفة",
-    "auth/cancelled-popup-request":"تم إلغاء الطلب"
+    "auth/cancelled-popup-request":"تم إلغاء الطلب",
+    "auth/redirect-cancelled-by-user":"تم إلغاء عملية الدخول",
+    "auth/web-storage-unsupported":"المتصفح لا يدعم التخزين المطلوب",
+    "auth/operation-not-supported-in-this-environment":"العملية غير مدعومة في هذا المتصفح"
   }[e]||"حدث خطأ، جرب مرة أخرى"
 }
 
+/* ======================================================
+   ✅ tryAutoLogin - محدّث لمعالجة نتيجة signInWithRedirect
+   لازم نستدعي getRedirectResult بعد رجوع الصفحة من Google
+   ====================================================== */
 async function tryAutoLogin(){
   if(!autoLoginChecked){
     autoLoginChecked=!0;
+
+    // 1️⃣ فحص نتيجة الـ Redirect الخاصة بمنصة الأونلاين
+    try {
+      const onlineRedirect = await onlineAuth.getRedirectResult();
+      if (onlineRedirect && onlineRedirect.user) {
+        console.log("🔵 Google Redirect Login: Online");
+        activatePlatform("online");
+        await handleUserLoggedIn(onlineRedirect.user);
+        hideSplash();
+        return;
+      }
+    } catch (err) {
+      console.warn("Online redirect result error:", err);
+      if (err && err.code && err.code !== "auth/popup-closed-by-user" && err.code !== "auth/cancelled-popup-request") {
+        activatePlatform("online");
+        showPage("authPage");
+        showAuthError(getAuthErrorMessage(err.code));
+        hideSplash();
+        return;
+      }
+    }
+
+    // 2️⃣ فحص نتيجة الـ Redirect الخاصة بمنصة السنتر
+    try {
+      const centerRedirect = await centerAuth.getRedirectResult();
+      if (centerRedirect && centerRedirect.user) {
+        console.log("🎯 Google Redirect Login: Center");
+        activatePlatform("center");
+        await handleUserLoggedIn(centerRedirect.user);
+        hideSplash();
+        return;
+      }
+    } catch (err) {
+      console.warn("Center redirect result error:", err);
+    }
+
+    // 3️⃣ الرجوع للطريقة العادية (Auto-Login من جلسة محفوظة)
     try{
-      const e=await new Promise((e=>{const t=onlineAuth.onAuthStateChanged((n=>{t(),e(n)}))})),t=await new Promise((e=>{const t=centerAuth.onAuthStateChanged((n=>{t(),e(n)}))}));
-      if(e)return console.log("🔵 Auto-Login: Online"),activatePlatform("online"),await handleUserLoggedIn(e),void hideSplash();
-      if(t)return console.log("🎯 Auto-Login: Center"),activatePlatform("center"),await handleUserLoggedIn(t),void hideSplash();
+      const e=await new Promise((resolve)=>{
+        const unsub = onlineAuth.onAuthStateChanged((user)=>{ unsub(); resolve(user); });
+      });
+      const t=await new Promise((resolve)=>{
+        const unsub = centerAuth.onAuthStateChanged((user)=>{ unsub(); resolve(user); });
+      });
+      if(e) return console.log("🔵 Auto-Login: Online"),activatePlatform("online"),await handleUserLoggedIn(e),void hideSplash();
+      if(t) return console.log("🎯 Auto-Login: Center"),activatePlatform("center"),await handleUserLoggedIn(t),void hideSplash();
       console.log("👤 No auto-login - showing platform page");
       showPage("platformPage");
       hideSplash()
@@ -763,4 +799,4 @@ document.getElementById("userPassword").addEventListener("keypress",(function(e)
 document.getElementById("accessCode").addEventListener("keypress",(function(e){"Enter"===e.key&&verifyAccessCode()}));
 </script>
 </body>
-  </html>
+                                                                                                                                                                                                                                                                                                                              </html>
